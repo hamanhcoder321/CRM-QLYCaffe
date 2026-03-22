@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('fullname')->nullable();
-            $table->string('email')->nullable();
+            $table->string('name')->nullable();
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->rememberToken()->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->date('birthday')->nullable();
             $table->unsignedTinyInteger('sex')->default(0)->comment('0: nam, 1: nu');
             $table->foreignId('part_id')->constrained('parts')->cascadeOnUpdate()->nullable();
