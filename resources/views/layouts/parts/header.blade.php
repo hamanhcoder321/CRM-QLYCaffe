@@ -11,6 +11,10 @@
   <link rel="stylesheet" href="{{ asset('Adminlte/plugins/fontawesome-free/css/all.min.css') }}">
   <!-- IonIcons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+
+  <!--datatable-->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.7/css/dataTables.dataTables.min.css">
+  
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('Adminlte/dist/css/adminlte.min.css') }}">
 </head>
