@@ -1,6 +1,7 @@
 @include('layouts/parts/header')
 
 @include('layouts/parts/sidebar')
+
     <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -9,17 +10,32 @@
         <div class="row mb-2">
           <div class="col-sm-6">
             <h1 class="m-0">Dashboard v3</h1>
+            
           </div><!-- /.col -->
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Dashboard v3</li>
-            </ol>
-          </div><!-- /.col -->
+          
+         <div class="col-sm-6">
+  <div class="d-flex justify-content-end align-items-center">
+
+    <ol class="breadcrumb mr-3 mb-0">
+      <li class="breadcrumb-item"><a href="#">Home</a></li>
+      <li class="breadcrumb-item active">Dashboard v3</li>
+    </ol>
+
+    {{-- Nút logout --}}
+    <form action="{{ route('logout') }}" method="POST">
+      @csrf
+      <button class="btn btn-danger btn-sm">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+      </button>
+    </form>
+
+  </div>
+</div><!-- /.col -->
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
+    
 
     <!-- Main content -->
     <div class="content">
@@ -47,6 +63,7 @@
                   </p>
                 </div>
                 <!-- /.d-flex -->
+                
 
                 <div class="position-relative mb-4">
                   <canvas id="visitors-chart" height="200"></canvas>
