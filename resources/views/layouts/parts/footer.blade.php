@@ -18,6 +18,9 @@
 <!-- AdminLTE -->
 <script src="{{ asset('Adminlte/dist/js/adminlte.js') }}"></script>
 
+  <!--datatable-->
+<script src="https://cdn.datatables.net/2.3.7/js/dataTables.min.js"></script>
+
 <!-- OPTIONAL SCRIPTS -->
 <script src="{{ asset('Adminlte/plugins/chart.js/Chart.min.js') }}"></script>
 <!-- AdminLTE for demo purposes -->

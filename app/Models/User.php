@@ -21,6 +21,19 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'birthday',
+        'sex',
+        'part_id',
+        'position_id',
+        'type_work',
+        'team_id',
+        'phone',
+        'address',
+        'status',
+        'start_day',
+        'end_day',
+        'type_account_id',
+        'branch_id',
     ];
 
     /**
@@ -32,6 +45,33 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+
+    /**khoá ngoại model user */
+
+    public function part()
+    {
+        return $this->belongsTo(Part::class, 'part_id');
+    }
+    public function position()
+    {
+        return $this->belongsTo(Position::class, 'position_id');
+    }
+    public function team()
+    {
+        return $this->belongsTo(Team::class, 'team_id');
+    }
+    public function typeAccount()
+    {
+        return $this->belongsTo(typeAccount::class, 'type_account_id');
+    }
+
+    /** Chi nhánh của nhân viên */
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
 
     /**
      * Get the attributes that should be cast.
