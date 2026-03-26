@@ -32,7 +32,7 @@ class User extends Authenticatable
         'status',
         'start_day',
         'end_day',
-        'type_account_id',
+        'type_accounts_id',
         'branch_id',
     ];
 
@@ -63,7 +63,7 @@ class User extends Authenticatable
     }
     public function typeAccount()
     {
-        return $this->belongsTo(typeAccount::class, 'type_account_id');
+        return $this->belongsTo(Type_account::class, 'type_accounts_id');
     }
 
     /** Chi nhánh của nhân viên */
