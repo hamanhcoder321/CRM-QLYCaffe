@@ -23,9 +23,9 @@ ROUTE: GET / → home.index
     <link rel="stylesheet" href="{{ asset('Adminlte/plugins/fontawesome-free/css/all.min.css') }}">
 
     <style>
-        /* 
+        /*
            BIẾN MÀU SẮC — đổi ở đây là đổi toàn trang
-            */
+        */
         :root {
             --cafe-brown: #6f4e37;
             /* nâu cafe chính */
@@ -47,6 +47,10 @@ ROUTE: GET / → home.index
             padding: 0;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background: var(--white);
@@ -59,9 +63,9 @@ ROUTE: GET / → home.index
             color: inherit;
         }
 
-        /* 
+        /*
            NAVBAR — thanh trên cùng, cố định khi cuộn
-            */
+        */
         .navbar {
             position: fixed;
             top: 0;
@@ -145,9 +149,9 @@ ROUTE: GET / → home.index
             background: var(--cafe-dark);
         }
 
-        /* 
+        /*
            HERO — banner chính đầu trang
-            */
+        */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -258,9 +262,9 @@ ROUTE: GET / → home.index
             margin-top: 2px;
         }
 
-        /* 
+        /*
            SECTION CHUNG
-            */
+        */
         section {
             padding: 90px 60px;
         }
@@ -298,9 +302,70 @@ ROUTE: GET / → home.index
             margin: 0 auto;
         }
 
-        /* 
+        /*
+           HIỆU ỨNG SCROLL REVEAL
+           --------------------------------------------------
+           Ý tưởng:
+           - Khi phần tử CHƯA xuất hiện trong màn hình:
+             + cho nó mờ đi (opacity: 0)
+             + đẩy xuống một chút (translateY)
+           - Khi scroll tới nơi:
+             + thêm class .show bằng JavaScript
+             + phần tử sẽ hiện dần lên mượt hơn
+           
+           Ưu điểm:
+           - Không bị "hiện cứng"
+           - Tạo cảm giác chuyên nghiệp hơn
+           - Dễ tái sử dụng cho nhiều block khác nhau
+        */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+            will-change: opacity, transform;
+        }
+
+        /*
+           Khi JavaScript thêm class .show:
+           - opacity = 1: hiện rõ hoàn toàn
+           - transform về vị trí gốc: phần tử trượt lên nhẹ nhàng
+        */
+        .reveal.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /*
+           Delay giúp các item con xuất hiện lần lượt thay vì cùng lúc.
+           Ví dụ card 1 hiện trước, card 2 hiện sau một chút...
+        */
+        .delay-1 {
+            transition-delay: 0.08s;
+        }
+
+        .delay-2 {
+            transition-delay: 0.16s;
+        }
+
+        .delay-3 {
+            transition-delay: 0.24s;
+        }
+
+        .delay-4 {
+            transition-delay: 0.32s;
+        }
+
+        .delay-5 {
+            transition-delay: 0.4s;
+        }
+
+        .delay-6 {
+            transition-delay: 0.48s;
+        }
+
+        /*
            FEATURES — 6 thẻ tính năng
-            */
+        */
         .features {
             background: #fafafa;
         }
@@ -318,7 +383,7 @@ ROUTE: GET / → home.index
             border-radius: var(--radius);
             padding: 32px 28px;
             border: 1px solid rgba(0, 0, 0, 0.06);
-            transition: all 0.25s;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, opacity 0.7s ease;
         }
 
         .feature-card:hover {
@@ -353,9 +418,9 @@ ROUTE: GET / → home.index
             line-height: 1.7;
         }
 
-        /* 
+        /*
            STEPS — 3 bước sử dụng
-            */
+        */
         .steps {
             background: var(--white);
         }
@@ -367,6 +432,15 @@ ROUTE: GET / → home.index
             max-width: 860px;
             margin: 0 auto;
             text-align: center;
+        }
+
+        .step-item {
+            padding: 8px;
+            transition: transform 0.25s ease;
+        }
+
+        .step-item:hover {
+            transform: translateY(-4px);
         }
 
         .step-number {
@@ -395,9 +469,9 @@ ROUTE: GET / → home.index
             color: var(--text-gray);
         }
 
-        /* 
+        /*
            CTA BANNER
-            */
+        */
         .cta-banner {
             background: linear-gradient(135deg, var(--cafe-dark), var(--cafe-brown));
             text-align: center;
@@ -436,9 +510,9 @@ ROUTE: GET / → home.index
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        /* 
+        /*
            FOOTER
-            */
+        */
         footer {
             background: var(--cafe-dark);
             color: rgba(255, 255, 255, 0.7);
@@ -451,9 +525,9 @@ ROUTE: GET / → home.index
             color: var(--white);
         }
 
-        /* 
+        /*
            RESPONSIVE — mobile
-            */
+        */
         @media (max-width: 900px) {
             .navbar {
                 padding: 14px 20px;
@@ -485,10 +559,10 @@ ROUTE: GET / → home.index
 
 <body>
 
-    {{-- 
+    {{--
     NAVBAR
     Logic: @auth/@else kiểm tra đăng nhập để hiện nút phù hợp
-     --}}
+    --}}
     <nav class="navbar">
 
         {{-- Logo trái --}}
@@ -528,25 +602,25 @@ ROUTE: GET / → home.index
     </nav>
 
 
-    {{-- 
+    {{--
     HERO
-     --}}
+    --}}
     <section class="hero">
         <div class="hero-content">
 
-            <div class="hero-badge">
+            <div class="hero-badge reveal">
                 <i class="fas fa-coffee"></i>
                 Hệ thống quản lý chuỗi cafe
             </div>
 
-            <h1>Quản lý <span>M&T Cafe</span><br>thông minh & hiệu quả</h1>
+            <h1 class="reveal delay-1">Quản lý <span>M&T Cafe</span><br>thông minh & hiệu quả</h1>
 
-            <p>
+            <p class="reveal delay-2">
                 Nền tảng quản lý toàn diện: nhân sự, doanh thu, kho hàng, đa chi nhánh —
                 tất cả trong một hệ thống đơn giản, dễ dùng.
             </p>
 
-            <div class="hero-actions">
+            <div class="hero-actions reveal delay-3">
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn-hero-primary">
                         <i class="fas fa-tachometer-alt"></i> Vào Dashboard
@@ -564,15 +638,15 @@ ROUTE: GET / → home.index
 
             {{-- Thống kê nhanh --}}
             <div class="hero-stats">
-                <div class="stat-item">
+                <div class="stat-item reveal delay-1">
                     <div class="number">22+</div>
                     <div class="label">Module quản lý</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item reveal delay-2">
                     <div class="number">3</div>
                     <div class="label">Cấp phân quyền</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item reveal delay-3">
                     <div class="number">∞</div>
                     <div class="label">Chi nhánh</div>
                 </div>
@@ -582,43 +656,43 @@ ROUTE: GET / → home.index
     </section>
 
 
-    {{-- 
-    tính năng
-     --}}
+    {{--
+    tính năng
+    --}}
     <section class="features" id="features">
-        <div class="section-header">
+        <div class="section-header reveal">
             <div class="section-badge">Tính năng</div>
             <h2 class="section-title">Đầy đủ mọi nghiệp vụ quán cafe</h2>
             <p class="section-sub">Từ nhân sự, doanh thu đến kho hàng — thiết kế đơn giản, dễ dùng.</p>
         </div>
 
         <div class="features-grid">
-            <div class="feature-card">
+            <div class="feature-card reveal delay-1">
                 <div class="feature-icon"><i class="fas fa-store"></i></div>
                 <h3>Quản lý đa chi nhánh</h3>
                 <p>Mỗi chi nhánh có dữ liệu riêng. Admin thấy tất cả, quản lý chi nhánh chỉ thấy của mình.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-2">
                 <div class="feature-icon"><i class="fas fa-users"></i></div>
                 <h3>Quản lý nhân sự</h3>
                 <p>Hồ sơ, chấm công, phân ca, lương thưởng và tuyển dụng theo từng bộ phận.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-3">
                 <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
                 <h3>Báo cáo doanh thu</h3>
                 <p>Theo dõi doanh thu, lợi nhuận theo ngày / tháng / năm. So sánh giữa các chi nhánh.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-4">
                 <div class="feature-icon"><i class="fas fa-boxes"></i></div>
                 <h3>Quản lý kho hàng</h3>
                 <p>Nhập xuất kho, tồn kho nguyên liệu, cảnh báo khi hàng sắp hết.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-5">
                 <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
                 <h3>Phân quyền bảo mật</h3>
                 <p>3 cấp: Admin, Quản lý chi nhánh, Nhân viên. Mỗi người chỉ thấy đúng dữ liệu của mình.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-6">
                 <div class="feature-icon"><i class="fas fa-handshake"></i></div>
                 <h3>Chăm sóc khách hàng</h3>
                 <p>Lưu lịch sử mua hàng, chăm sóc khách hàng thân thiết từng chi nhánh.</p>
@@ -627,28 +701,28 @@ ROUTE: GET / → home.index
     </section>
 
 
-    {{-- 
+    {{--
     Start
-     --}}
+    --}}
     <section class="steps">
-        <div class="section-header">
+        <div class="section-header reveal">
             <div class="section-badge">Bắt đầu</div>
             <h2 class="section-title">Dùng hệ thống chỉ 3 bước</h2>
             <p class="section-sub">Đơn giản, không cần kỹ thuật phức tạp.</p>
         </div>
 
         <div class="steps-grid">
-            <div class="step-item">
+            <div class="step-item reveal delay-1">
                 <div class="step-number">1</div>
                 <h3>Đăng nhập</h3>
                 <p>Dùng tài khoản được Admin cấp. Mật khẩu mã hoá, an toàn tuyệt đối.</p>
             </div>
-            <div class="step-item">
+            <div class="step-item reveal delay-2">
                 <div class="step-number">2</div>
                 <h3>Chọn chi nhánh</h3>
                 <p>Hệ thống tự nhận diện chi nhánh và hiển thị đúng dữ liệu của bạn.</p>
             </div>
-            <div class="step-item">
+            <div class="step-item reveal delay-3">
                 <div class="step-number">3</div>
                 <h3>Quản lý</h3>
                 <p>Nhân sự, doanh thu, kho hàng — tất cả trực quan trên Dashboard.</p>
@@ -657,10 +731,10 @@ ROUTE: GET / → home.index
     </section>
 
 
-    {{-- 
+    {{--
     Cta banner
-     --}}
-    <div class="cta-banner">
+    --}}
+    <div class="cta-banner reveal" id="cta-banner">
         <h2>Sẵn sàng bắt đầu? ☕</h2>
         <p>Đăng nhập ngay để quản lý chuỗi cafe M&T của bạn.</p>
         @auth
@@ -675,12 +749,49 @@ ROUTE: GET / → home.index
     </div>
 
 
-    {{-- 
+    {{--
     footer
-     --}}
-    <footer>
+    --}}
+    <footer class="reveal">
         <p>© {{ date('Y') }} <strong>M&T Cafe Management</strong> — Hệ thống quản lý chuỗi cafe.</p>
     </footer>
+
+    <script>
+        /*
+         * SCROLL REVEAL BẰNG INTERSECTION OBSERVER
+         * ----------------------------------------
+         * Cách hoạt động:
+         * 1. Tìm tất cả phần tử có class .reveal
+         * 2. Khi phần tử đi vào gần vùng nhìn thấy của màn hình
+         *    thì thêm class .show
+         * 3. CSS ở trên sẽ làm phần tử hiện ra mượt thay vì hiện cứng
+         *
+         * rootMargin: cho phép phần tử hiện sớm hơn một chút trước khi vào khung nhìn
+         * threshold: tỉ lệ phần tử cần xuất hiện để trigger hiệu ứng
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const revealItems = document.querySelectorAll('.reveal');
+
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+
+                    entry.target.classList.add('show');
+                    observer.unobserve(entry.target);
+                });
+            }, {
+                root: null,
+                rootMargin: '0px 0px -80px 0px',
+                threshold: 0.15
+            });
+
+            revealItems.forEach((item) => {
+                revealObserver.observe(item);
+            });
+        });
+    </script>
 
 </body>
 

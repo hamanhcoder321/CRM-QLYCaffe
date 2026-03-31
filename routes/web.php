@@ -31,4 +31,5 @@ Route::get('/account', [UserController::class, 'index'])->name('account')->middl
 Route::prefix('users')->name('users.')->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('list');
     Route::get('/data', [UserController::class, 'getUsersData'])->name('data');
+    Route::get('/filters', [UserController::class, 'getFilters'])->name('filters');
 })->middleware('auth');

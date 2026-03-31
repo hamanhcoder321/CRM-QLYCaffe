@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Part;
+use App\Models\Team;
+use App\Models\Type_account;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -15,12 +18,34 @@ class UserController extends Controller
         return view('users.list');
     }
 
+
+    public function getFilters(){
+        $status_f = collect([
+            ['id' => 1, 'text' => 'Đã nghỉ'],
+            ['id' => 0, 'text' => 'Đang làm']
+        ]);
+
+        $part_f = Part::select('id', 'name as text')->orderBy('name')->get();
+        $team_f = Team::select('id', 'name as text')->orderBy('name')->get();
+        $role_f = Type_account::select('id', 'name as text')->orderBy('name')->get();
+
+        return response()->json([
+            'status_f' => $status_f,
+            'part_f' => $part_f,
+            'team_f' => $team_f,
+            'role_f' => $role_f 
+        ]);
+    }
+
     public function getUsersData()
     {
-        $users = User::with('part', 'position', 'team', 'typeAccount', 'branch');
+        $users = User::leftJoin('branches', 'users.branch_id', '=', 'branches.id')
+            ->with('part', 'position', 'team', 'typeAccount')
+            ->select('users.*', 'branches.name as branch_name');
 
         return DataTables::of($users)
             ->addIndexColumn()
+
             ->editColumn('sex', function ($row) {
                 return $row->sex == 0 ? 'nam' : 'nữ';
             })
@@ -42,14 +67,12 @@ class UserController extends Controller
             ->editColumn('type_accounts_id', function ($row) {
                 return $row->typeAccount->name ?? '';
             })
-            ->editColumn('branch_name', function ($row) {
-                return $row->branch->name ?? '';
-            })
 
-            ->editColumn('action', function ($row) {
-                return '<div class="btn btn-warning"><i class="fas fa-edit"></i>sửa</div>
-<div class="btn btn-danger"><i class="fas fa-trash"></i>xóa</div>';
+            ->addColumn('action', function ($row) {
+                return '<div class="btn btn-warning">Sửa</div>
+                    <div class="btn btn-danger">Xóa</div>';
             })
+            ->rawColumns(['action'])
             ->make(true);
     }
 }
