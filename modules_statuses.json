@@ -1,3 +1,5 @@
 {
-    "User": true
+    "User": true,
+    "NhapHang": true,
+    "BanHang": true
 }

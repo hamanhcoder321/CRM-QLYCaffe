@@ -28,8 +28,8 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'email' => ['bail', 'required', 'email'],
+            'password' => ['bail', 'required'],
         ];
     }
 
@@ -43,10 +43,10 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+            RateLimiter::hit($this->throttleKey(), 60); // khóa 60 giây sau mỗi lần sai
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => __('Tài khoản hoặc mật khẩu không đúng.'),
             ]);
         }
 
@@ -69,11 +69,22 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'email' => __('Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau :seconds giây.', [
                 'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
             ]),
         ]);
+    }
+
+    /**
+     * Get the validation messages for the request.
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không đúng định dạng.',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+        ];
     }
 
     /**

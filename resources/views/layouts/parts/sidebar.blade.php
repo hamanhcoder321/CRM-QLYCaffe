@@ -1,13 +1,24 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
   @php
-    $isDashboard = request()->is('dashboard');
-    $isFinance = request()->is('finance*') || request()->is('salary*') || request()->is('expenses*');
-    $isPurchasing = request()->is('arranges*') || request()->is('shipments*') || request()->is('customers*');
-    $isSales = request()->is('sales*') || request()->is('storages*') || request()->is('products*');
-    $isHr = request()->is('recruitments*') || request()->is('facilities*') || request()->is('timesheets*');
-    $isConfig = request()->is('salary-mechanism*') || request()->is('settings*');
-    $isAccount = request()->is('users') || request()->is('account');
+    $user = auth()->user();
+    $user?->loadMissing('part', 'typeAccount', 'branch');
+
+    $isDashboard  = request()->is('dashboard');
+    $isFinance    = request()->is('finance*') || request()->is('salary*') || request()->is('expenses*');
+    $isPurchasing = request()->is('arranges*') || request()->is('shipments*') || request()->is('customers*') || request()->is('nhap-hang*');
+    $isSales      = request()->is('ban-hang*') || request()->is('sales*');
+    $isHr         = request()->is('recruitments*') || request()->is('facilities*') || request()->is('timesheets*');
+    $isConfig     = request()->is('salary-mechanism*') || request()->is('settings*');
+    $isAccount    = request()->is('users') || request()->is('account') || request()->is('chi-nhanh*');
+
+    // Phân quyền
+    $hasNoRole    = !$user?->typeAccount && !$user?->part; // user chưa cấu hình role → mặc định thấy hết
+    $canWarehouse = $hasNoRole || ($user?->canAccessWarehouse() ?? false);
+    $canSales     = $hasNoRole || ($user?->canAccessSales()     ?? false);
+    $canFinance   = $hasNoRole || ($user?->canAccessFinance()   ?? false);
+    $canHR        = $hasNoRole || ($user?->canAccessHR()        ?? false);
+    $isAdminOrMgr = $hasNoRole || ($user?->isAdminOrManager()   ?? false);
   @endphp
 
   <!-- Brand Logo -->
@@ -20,7 +31,13 @@
     >
     <div class="d-flex flex-column">
       <span class="brand-text font-weight-semibold">CRM Chuỗi Cafe</span>
-      <small class="text-light" style="font-size: 11px; letter-spacing: .5px;">Quản trị vận hành</small>
+      @if($user?->branch)
+        <small class="text-light" style="font-size: 11px; letter-spacing: .5px;">
+          {{ $user->branch->name }}
+        </small>
+      @else
+        <small class="text-light" style="font-size: 11px; letter-spacing: .5px;">Quản trị vận hành</small>
+      @endif
     </div>
   </a>
 
@@ -32,8 +49,13 @@
         <img src="{{ asset('Adminlte/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
       </div>
       <div class="info">
-        <a href="/dashboard" class="d-block font-weight-semibold">Hệ thống quản trị</a>
-        <small class="text-muted">Chuỗi cửa hàng cafe</small>
+        <a href="/dashboard" class="d-block font-weight-semibold">{{ $user?->name ?? 'Hệ thống quản trị' }}</a>
+        <small class="text-muted">
+          {{ $user?->getPartName() ?: 'Chuỗi cửa hàng cafe' }}
+          @if($user?->isAdmin()) <span class="badge badge-warning ml-1" style="font-size:9px">Admin</span>
+          @elseif($user?->isManager()) <span class="badge badge-info ml-1" style="font-size:9px">QL</span>
+          @endif
+        </small>
       </div>
     </div>
 
@@ -63,6 +85,8 @@
 
         <li class="nav-header text-uppercase">Nghiệp vụ</li>
 
+        {{-- TÀI CHÍNH - chỉ Admin/Quản lý/Kế toán --}}
+        @if($canFinance)
         <li class="nav-item {{ $isFinance ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ $isFinance ? 'active' : '' }}">
             <i class="nav-icon fas fa-wallet"></i>
@@ -92,7 +116,10 @@
             </li>
           </ul>
         </li>
+        @endif
 
+        {{-- NHẬP HÀNG - Kho/Vận hành/Admin/Quản lý --}}
+        @if($canWarehouse)
         <li class="nav-item {{ $isPurchasing ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ $isPurchasing ? 'active' : '' }}">
             <i class="nav-icon fas fa-truck-loading"></i>
@@ -103,26 +130,29 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('nhaphang.list') }}" class="nav-link {{ request()->is('nhap-hang') || request()->is('nhap-hang/') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Xếp lô hàng</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('nhaphang.don-nhap') }}" class="nav-link {{ request()->is('nhap-hang/don-nhap*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Quản lý đơn nhập</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('nhaphang.nha-cung-cap') }}" class="nav-link {{ request()->is('nhap-hang/nha-cung-cap*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
-                <p>Nhà cung cấp / khách hàng</p>
+                <p>Nhà cung cấp</p>
               </a>
             </li>
           </ul>
         </li>
+        @endif
 
+        {{-- BÁN HÀNG - Kinh doanh/Sale/Admin/Quản lý --}}
+        @if($canSales)
         <li class="nav-item {{ $isSales ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ $isSales ? 'active' : '' }}">
             <i class="nav-icon fas fa-cash-register"></i>
@@ -133,20 +163,29 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('banhang.thuc-uong') }}" class="nav-link {{ request()->is('ban-hang/thuc-uong*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
-                <p>Giao dịch bán hàng</p>
+                <p>Menu thức uống</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('banhang.ton-kho') }}" class="nav-link {{ request()->is('ban-hang/ton-kho*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Tồn kho</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{{ route('banhang.giao-dich') }}" class="nav-link {{ request()->is('ban-hang/giao-dich*') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Giao dịch bán hàng</p>
+              </a>
+            </li>
           </ul>
         </li>
+        @endif
 
+        {{-- NHÂN SỰ - HR/Admin/Quản lý --}}
+        @if($canHR)
         <li class="nav-item {{ $isHr ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ $isHr ? 'active' : '' }}">
             <i class="nav-icon fas fa-users-cog"></i>
@@ -176,8 +215,18 @@
             </li>
           </ul>
         </li>
+        @endif
 
+        {{-- HỆ THỐNG - chỉ Admin/Quản lý --}}
+        @if($isAdminOrMgr)
         <li class="nav-header text-uppercase">Hệ thống</li>
+
+        <li class="nav-item {{ request()->is('chi-nhanh*') ? 'active' : '' }}">
+          <a href="{{ route('branches.list') }}" class="nav-link {{ request()->is('chi-nhanh*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-store-alt"></i>
+            <p>Chi nhánh</p>
+          </a>
+        </li>
 
         <li class="nav-item {{ $isConfig ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ $isConfig ? 'active' : '' }}">
@@ -220,6 +269,8 @@
             </li>
           </ul>
         </li>
+        @endif
+
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

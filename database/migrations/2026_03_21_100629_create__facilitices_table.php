@@ -18,8 +18,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('status')->nullable();
             $table->string('position')->nullable();
-            $table->foreignId('need_user_id')->constrained('users')->cascadeOnUpdate()->nullable();
-            $table->foreignId('manager_user_id')->constrained('users')->cascadeOnUpdate()->nullable();
+            $table->foreignId('need_user_id')->nullable()->constrained('users')->cascadeOnUpdate();
+            $table->foreignId('manager_user_id')->nullable()->constrained('users')->cascadeOnUpdate();
             $table->dateTime('day');
             $table->text('note')->nullable();
             $table->timestamps();

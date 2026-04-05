@@ -105,6 +105,38 @@ h1 {
   margin-bottom: 10px;
 }
 
+/* ERROR BOX */
+.input-error-wrapper {
+  margin-bottom: 8px;
+}
+
+@keyframes slideInError {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.input-error-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff1f1;
+  border-left: 3px solid #e53e3e;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #c53030;
+  font-weight: 500;
+  animation: slideInError 0.25s ease;
+  box-shadow: 0 1px 4px rgba(229, 62, 62, 0.12);
+}
+
 /* CHECKBOX */
 .check {
   margin: 10px 0 15px;
@@ -128,7 +160,27 @@ h1 {
   background: var(--primary-hover);
 }
 
-/* FOOTER */
+
+.alert-error-wrap {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.alert-error {
+  background: #fff1f1;
+  border-left: 3px solid #e53e3e;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #c53030;
+  font-weight: 500;
+  animation: slideInError 0.25s ease;
+  box-shadow: 0 1px 4px rgba(229, 62, 62, 0.12);
+}
+
+
 .help {
   margin-top: 10px;
   text-align: center;
@@ -136,7 +188,7 @@ h1 {
   color: #777;
 }
 
-/* RESPONSIVE */
+
 @media(max-width: 768px) {
   .left {
     display: none;
@@ -167,6 +219,17 @@ h1 {
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
+                {{-- Một block lỗi duy nhất: hiện tất cả lỗi không trùng --}}
+                @if ($errors->any())
+                    <div class="alert-error-wrap">
+                        @foreach (array_unique($errors->all()) as $error)
+                            <div class="alert-error">{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div style="margin-top: 4px; margin-left: 2px;">
+
                 <!-- Email -->
                 <x-text-input 
                     id="email" 
@@ -174,12 +237,10 @@ h1 {
                     type="email" 
                     name="email" 
                     :value="old('email')" 
-                    required 
                     autofocus 
                     autocomplete="username" 
                     placeholder="Nhập email..."
                 />
-                <x-input-error :messages="$errors->get('email')" />
 
                 <!-- Password -->
                 <x-text-input 
@@ -187,11 +248,9 @@ h1 {
                     class="input" 
                     type="password" 
                     name="password"
-                    required 
                     autocomplete="current-password" 
                     placeholder="Nhập mật khẩu..."
                 />
-                <x-input-error :messages="$errors->get('password')" />
 
                 <!-- Remember -->
                 <div class="check">
@@ -208,6 +267,7 @@ h1 {
                     Hỗ trợ kỹ thuật: 0123456689 (Zalo)
                 </p>
 
+            </div>
             </form>
 
         </div>

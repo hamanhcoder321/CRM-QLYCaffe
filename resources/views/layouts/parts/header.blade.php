@@ -21,15 +21,7 @@
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('Adminlte/dist/css/adminlte.min.css') }}">
 </head>
-<!--
-`body` tag options:
 
-  Apply one or more of the following classes to to the body tag
-  to get the desired effect
-
-  * sidebar-collapse
-  * sidebar-mini
--->
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
   <!-- Navbar -->
@@ -160,6 +152,19 @@
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
           <i class="fas fa-expand-arrows-alt"></i>
         </a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="{{ route('profile.edit') }}" class="nav-link">
+          <i class="fas fa-user mr-1"></i> Profile
+        </a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <form action="{{ route('logout') }}" method="POST" class="m-0">
+          @csrf
+          <button type="submit" class="nav-link btn btn-link text-danger px-0">
+            <i class="fas fa-sign-out-alt mr-1"></i> Đăng xuất
+          </button>
+        </form>
       </li>
       <!-- <li class="nav-item">
         <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">

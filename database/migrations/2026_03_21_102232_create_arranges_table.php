@@ -19,12 +19,12 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('phone_customer')->nullable();
             $table->string('name')->nullable();
-            $table->foreignId('sale_user_id')->constrained('users')->cascadeOnUpdate()->nullable();
-            $table->foreignId('part_id')->constrained('parts')->cascadeOnUpdate()->nullable();
-            $table->foreignId('team_id')->constrained('teams')->cascadeOnUpdate()->nullable();
+            $table->foreignId('sale_user_id')->nullable()->constrained('users')->cascadeOnUpdate();
+            $table->foreignId('part_id')->nullable()->constrained('parts')->cascadeOnUpdate();
+            $table->foreignId('team_id')->nullable()->constrained('teams')->cascadeOnUpdate();
             $table->string('account_social')->nullable();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnUpdate()->nullable();
-            $table->foreignId('support_user_id')->constrained('users')->cascadeOnUpdate()->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate();
+            $table->foreignId('support_user_id')->nullable()->constrained('users')->cascadeOnUpdate();
             $table->unsignedTinyInteger('type_arrange')->default(0)->comment('0: mới, 1: cũ');
             $table->unsignedTinyInteger('result')->default(0)->comment('0: chưa bốc hàng, 1: hoàn thành, 2: fail');
             $table->text('reason_fail')->nullable();

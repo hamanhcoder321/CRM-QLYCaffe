@@ -1,0 +1,11 @@
+{
+    "name": "NhapHang",
+    "alias": "nhaphang",
+    "description": "Module quản lý nhập hàng",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\NhapHang\\Providers\\NhapHangServiceProvider"
+    ],
+    "files": []
+}

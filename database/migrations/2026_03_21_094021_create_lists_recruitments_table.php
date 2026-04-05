@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->date('birthday')->nullable();
             $table->unsignedTinyInteger('interview')->default(0)->comment('0: không, 1: có');
-            $table->foreignId('user_id')->constrained('users')->cascadeOnUpdate()->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate();
             $table->unsignedTinyInteger('result')->default(0)->comment('0: không đạt, 1: đạt');
             $table->dateTime('day_work')->nullable();
             $table->text('note')->nullable();

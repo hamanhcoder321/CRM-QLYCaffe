@@ -18,11 +18,8 @@
   <!--datatable-->
 <script src="https://cdn.datatables.net/2.3.7/js/dataTables.min.js"></script>
 
-<!-- OPTIONAL SCRIPTS -->
-<script src="{{ asset('Adminlte/plugins/chart.js/Chart.min.js') }}"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="{{ asset('Adminlte/dist/js/pages/dashboard3.js') }}"></script>
-
+{{-- Chart.min.js và dashboard3.js chỉ load ở trang dashboard --}}
+@stack('scripts')
 <!-- cdn sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
