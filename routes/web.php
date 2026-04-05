@@ -1,22 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-
-
 
 Route::get('/', function () {
     return view('home.index');  // -> resources/views/home/index.blade.php
 })->name('home');
 
-
 // DASHBOARD  -> phải đăng nhập mới vào được
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -25,11 +19,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . "/auth.php";
-
-
-Route::get('/account', [UserController::class, 'index'])->name('account')->middleware('auth');
-Route::prefix('users')->name('users.')->group(function () {
-    Route::get('/', [UserController::class, 'index'])->name('list');
-    Route::get('/data', [UserController::class, 'getUsersData'])->name('data');
-    Route::get('/filters', [UserController::class, 'getFilters'])->name('filters');
-})->middleware('auth');

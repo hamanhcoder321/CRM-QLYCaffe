@@ -3,43 +3,54 @@
 @include('layouts/parts/sidebar')
 
 <div class="content-wrapper">
-    <div class="content">
-        <div class="container-fluid px-3">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="d-flex justify-content-between align-items-center py-3 w-100">
+                            <h4 class="mb-0 fw-bold">Danh sách Tài khoản</h4>
+                            @if(session('success'))
+                                <div class="alert alert-success">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+                            <a href="{{ route('users.created') }}" class="btn btn-primary btn-sm" id="btn-open-create">
+                                <i class="fas fa-plus"></i> Thêm mới
+                            </a>
+                        </div>
 
-            <div class="d-flex justify-content-between align-items-center py-3">
-                <h4 class="mb-0 fw-bold">Danh sách Tài khoản</h4>
-                <!-- <a href="#" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus"></i> Thêm mới
-                </a> -->
-            </div>
+                        <div class="card shadow-sm">
+                            <div class="card-body p-2">
+                                <div style="width: 100%;">
+                                    <table id="users-table" class="table table-bordered table-hover table-sm mb-0"
+                                        style="width:100%; font-size: 13px;">
+                                        <thead class="table-dark text-center">
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Tên</th>
+                                                <th>Email</th>
+                                                <th>Ngày sinh</th>
+                                                <th>Giới tính</th>
+                                                <th>Bộ phận</th>
+                                                <th>Vị trí</th>
+                                                <th>Hình thức</th>
+                                                <th>Đội nhóm</th>
+                                                <th>SĐT</th>
+                                                <th>Địa chỉ</th>
+                                                <th>Trạng thái</th>
+                                                <th>Ngày bắt đầu</th>
+                                                <th>Ngày nghỉ</th>
+                                                <th>Loại TK</th>
+                                                <th>Chi nhánh</th>
+                                                <th>Tác vụ</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body p-2">
-                    <div style="width: 100%;">
-                        <table id="users-table" class="table table-bordered table-hover table-sm mb-0"
-                            style="width:100%; font-size: 13px;">
-                            <thead class="table-dark text-center">
-                                <tr>
-                                    <th>STT</th>
-                                    <th>Tên</th>
-                                    <th>Email</th>
-                                    <th>Ngày sinh</th>
-                                    <th>Giới tính</th>
-                                    <th>Bộ phận</th>
-                                    <th>Vị trí</th>
-                                    <th>Hình thức</th>
-                                    <th>Đội nhóm</th>
-                                    <th>SĐT</th>
-                                    <th>Địa chỉ</th>
-                                    <th>Trạng thái</th>
-                                    <th>Ngày bắt đầu</th>
-                                    <th>Ngày nghỉ</th>
-                                    <th>Loại TK</th>
-                                    <th>Chi nhánh</th>
-                                    <th>Tác vụ</th>
-                                </tr>
-                            </thead>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -90,12 +101,21 @@
 @include('layouts/parts/footer')
 
 <script>
+    window.DT = null;
     $(function () {
-        $('#users-table').DataTable({
+        window.DT = $('#users-table').DataTable({
             processing: true,
             serverSide: true,
             scrollX: true,
-            ajax: '{!! route('users.data') !!}',
+            ajax: {
+                url: '{!! route('users.data') !!}',
+                data: function (d) {
+                    d.part_id = $('#f_part').val() || '';
+                    d.status = $('#f_status').val() || '';
+                    d.team_id = $('#f_team').val() || '';
+                    d.type_account_id = $('#f_type_account').val() || '';
+                }
+            },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, width: '40px' },
                 { data: 'name', name: 'name' },
@@ -143,11 +163,11 @@
                 <'col-md-auto me-auto d-md-flex justify-content-between align-items-center dt-layout-end' p>
             >
             `,
-            initComplete: function(){
+            initComplete: function () {
                 const $bar = $('.dt-toolbar', this.api().table().container());
 
                 // giao diện filters
-                if(!$bar.children().length){
+                if (!$bar.children().length) {
                     $bar.html(`
                         <select id="f_status" class"form-select"><option value="">Trạng thái</option></select>
                         <select id="f_part" class"form-select"><option value="">Bộ phận</option></select>
@@ -159,30 +179,57 @@
 
                 // load data server
                 $.getJSON("{{ route('users.filters') }}")
-                    .done(res =>{
+                    .done(res => {
                         fill('#f_status', res.status_f);
                         fill('#f_part', res.part_f);
                         fill('#f_team', res.team_f);
                         fill('#f_type_account', res.role_f)
                     });
                 // hàm đổ data-->dropdown
-                function fill(selector, items){
+                function fill(selector, items) {
                     var element = $(selector);
 
                     //ktra items
-                    if(!items){
+                    if (!items) {
                         items = [];
                     }
 
-                    items.forEach(function(item){
+                    items.forEach(function (item) {
                         // đổ data vào option --> tạo option
                         var option = new Option(item.text, item.id);
 
                         // thêm option vào trong select
                         element.append(option);
-                    })
+                    });
                 }
+
+                // thay đổi filter-->load lại data table
+                $(document).on('change', '#f_status, #f_part, #f_team, #f_type_account', function () {
+                    DT.ajax.reload();
+                })
+
+                // delete filter
+                $('#btn-clear-filters').on('click', function () {
+                    $('#f_status, #f_part, #f_team, #f_type_account').val(''); // giá trị về null
+                    DT.ajax.reload(); //load lại filter 
+                })
+
             }
         });
+    });
+
+    $(document).on('click', 'button.btn.btn-danger.btn-delete', function () {
+        const $form = $(this).closest('form');
+        Swal.fire({
+            title: "Bạn có chắc chắn muốn xóa tài khoản này không",
+            icon: "question",
+            confirmButtonText: "xóa",
+            cancelButtonText: "hủy",
+            showCancelButton: true,
+            showCloseButton: true
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            $form.submit();
+        });;
     });
 </script>

@@ -22,5 +22,9 @@
 <script src="{{ asset('Adminlte/plugins/chart.js/Chart.min.js') }}"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="{{ asset('Adminlte/dist/js/pages/dashboard3.js') }}"></script>
+
+<!-- cdn sweetalert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </body>
 </html>
