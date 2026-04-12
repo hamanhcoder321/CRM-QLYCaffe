@@ -55,7 +55,7 @@
           <div class="info-box shadow-sm">
             <span class="info-box-icon bg-warning"><i class="fas fa-exclamation"></i></span>
             <div class="info-box-content">
-              <span class="info-box-text">Sắp hết (≤10)</span>
+              <span class="info-box-text">Sắp hết (≤20)</span>
               <span class="info-box-number" id="stat-sap-het">—</span>
             </div>
           </div>
@@ -116,24 +116,26 @@ const table = $('#tonkho-table').DataTable({
         { data: 'number_out' },
         { data: 'con_lai', orderable: false },
         { data: null, orderable: false, render: (_, __, row) => {
-            const val = (row.con_lai ?? 0) * (row.price ?? 0);
+            const val = (row.con_lai_raw ?? 0) * (row.price_raw ?? 0);
             return val > 0 ? '<strong>' + val.toLocaleString('vi-VN') + ' đ</strong>' : '—';
         }},
     ],
     language: { processing:'Đang tải...', search:'Tìm:', emptyTable:'Chưa có dữ liệu tồn kho', info:'_START_-_END_ / _TOTAL_ sản phẩm', lengthMenu:'Hiển thị _MENU_ dòng', paginate:{next:'›',previous:'‹'} },
     drawCallback: function() {
-        // Cập nhật stats từ data hiện tại
         const info = table.page.info();
         $('#stat-total-sp').text(info.recordsTotal);
     }
 });
 
 // Load stats chi tiết
-$.get('{{ route("banhang.ton-kho.data") }}', {draw:1,start:0,length:1000}, function(res) {
-    const data = res.data || [];
-    $('#stat-total-sp').text(data.length);
-    $('#stat-con-hang').text(data.filter(d => (d.con_lai ?? 0) > 10).length);
-    $('#stat-sap-het').text(data.filter(d => (d.con_lai ?? 0) > 0 && (d.con_lai ?? 0) <= 10).length);
-    $('#stat-het-hang').text(data.filter(d => (d.con_lai ?? 0) <= 0).length);
-});
+function loadTonKhoStats() {
+    $.get('{{ route("banhang.ton-kho.data") }}', {draw:1,start:0,length:10000}, function(res) {
+        const data = res.data || [];
+        $('#stat-total-sp').text(res.recordsTotal ?? data.length);
+        $('#stat-con-hang').text(data.filter(d => (d.con_lai_raw ?? 0) > 20).length);
+        $('#stat-sap-het').text(data.filter(d => (d.con_lai_raw ?? 0) > 0 && (d.con_lai_raw ?? 0) <= 20).length);
+        $('#stat-het-hang').text(data.filter(d => (d.con_lai_raw ?? 0) <= 0).length);
+    });
+}
+loadTonKhoStats();
 </script>

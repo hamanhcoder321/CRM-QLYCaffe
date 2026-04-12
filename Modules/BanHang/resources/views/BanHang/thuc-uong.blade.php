@@ -72,7 +72,13 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <label>Đơn giá bán (đ) <span class="text-danger">*</span></label>
+              <label>Giá vốn / giá nhập (đ) <span class="text-muted small">(tùy chọn)</span></label>
+              <input type="number" id="product-cost-price" class="form-control" placeholder="VD: 20000" min="0">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Giá bán (đ) <span class="text-danger">*</span></label>
               <input type="number" id="product-price" class="form-control" placeholder="VD: 35000" min="0">
             </div>
           </div>
@@ -145,7 +151,7 @@ const table = $('#product-table').DataTable({
 // Thêm mới
 $('#btn-add-product').click(function() {
     $('#modal-title-product').html('<i class="fas fa-plus-circle mr-2"></i>Thêm thức uống mới');
-    $('#product-id, #product-name, #product-number-in, #product-price').val('');
+    $('#product-id, #product-name, #product-number-in, #product-price, #product-cost-price').val('');
     $('#product-shipment').val('');
     $('#productModal').modal('show');
 });
@@ -157,6 +163,7 @@ window.openEditProduct = function(id) {
         $('#product-id').val(res.id);
         $('#product-name').val(res.name);
         $('#product-price').val(res.price);
+        $('#product-cost-price').val(res.cost_price ?? 0);
         $('#product-number-in').val(res.number_in);
         $('#product-shipment').val(res.shipment_id ?? '');
         $('#productModal').modal('show');
@@ -170,6 +177,7 @@ $('#btn-save-product').click(function() {
     const data = {
         name:        $('#product-name').val().trim(),
         price:       $('#product-price').val(),
+        cost_price:  $('#product-cost-price').val() || 0,
         number_in:   $('#product-number-in').val(),
         shipment_id: $('#product-shipment').val() || null,
     };

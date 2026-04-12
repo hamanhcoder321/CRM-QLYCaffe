@@ -131,7 +131,7 @@ class UserRepository implements UserRepositoryInterface{
     }
 
     public function store(array $validated): User{
-        \App\Models\User::create([
+        return \App\Models\User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
@@ -152,7 +152,7 @@ class UserRepository implements UserRepositoryInterface{
     }
 
     public function update(array $validated, User $user): bool{
-        $dataUpdated = [
+        $dataUpdate = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'birthday' => $validated['birthday'],

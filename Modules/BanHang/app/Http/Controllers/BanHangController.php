@@ -62,9 +62,11 @@ class BanHangController extends Controller
             'shipment_id' => ['nullable', 'integer', 'exists:shipments,id'],
             'number_in'   => ['required', 'integer', 'min:0'],
             'price'       => ['required', 'integer', 'min:0'],
+            'cost_price'  => ['nullable', 'integer', 'min:0'],
         ], ['name.required' => 'Tên thức uống bắt buộc']);
 
         $data['number_out'] = 0;
+        $data['cost_price'] = (int) ($data['cost_price'] ?? 0);
         $data['shipment_id'] = empty($data['shipment_id']) ? null : $data['shipment_id'];
 
         $this->repo->storeProduct($data);
@@ -83,8 +85,10 @@ class BanHangController extends Controller
             'shipment_id' => ['nullable', 'integer', 'exists:shipments,id'],
             'number_in'   => ['required', 'integer', 'min:0'],
             'price'       => ['required', 'integer', 'min:0'],
+            'cost_price'  => ['nullable', 'integer', 'min:0'],
         ]);
 
+        $data['cost_price'] = (int) ($data['cost_price'] ?? 0);
         $data['shipment_id'] = empty($data['shipment_id']) ? null : $data['shipment_id'];
         $this->repo->updateProduct($product->id, $data);
         return response()->json(['success' => true, 'message' => 'Cập nhật thành công!']);
@@ -110,11 +114,13 @@ class BanHangController extends Controller
         return DataTables::of($this->repo->getTonKho())
             ->addIndexColumn()
             ->addColumn('shipment_name', fn($r) => $r->shipment?->arrange?->name_arrange ?? '—')
+            ->addColumn('price_raw', fn($r) => (int) $r->price)
             ->editColumn('price', fn($r) => number_format($r->price) . ' đ')
+            ->addColumn('con_lai_raw', fn($r) => ($r->number_in ?? 0) - ($r->number_out ?? 0))
             ->addColumn('con_lai', function ($r) {
                 $val = ($r->number_in ?? 0) - ($r->number_out ?? 0);
-                if ($val <= 0) return '<span class="badge badge-danger px-2">Hết hàng</span>';
-                if ($val <= 10) return '<span class="badge badge-warning px-2">' . $val . '</span>';
+                if ($val <= 0)  return '<span class="badge badge-danger px-2">Hết hàng</span>';
+                if ($val <= 20) return '<span class="badge badge-warning px-2">' . $val . '</span>';
                 return '<span class="badge badge-success px-2">' . $val . '</span>';
             })
             ->rawColumns(['con_lai'])
@@ -145,12 +151,15 @@ class BanHangController extends Controller
         return DataTables::of($this->repo->getSells())
             ->addIndexColumn()
             ->addColumn('arrange_name', fn($r) => $r->shipment?->arrange?->name_arrange ?? '—')
+            ->addColumn('shipment_revenue_raw', fn($r) => (int) $r->shipment_revenue)
+            ->addColumn('profit_raw', fn($r) => (int) $r->profit)
             ->editColumn('status', fn($r) => match($r->status) {
                 0 => '<span class="badge-result badge-nhaplieu">Chưa bán</span>',
                 1 => '<span class="badge-result badge-hoanthanh">Đã bán</span>',
                 2 => '<span class="badge-result badge-luu">Lưu kho</span>',
                 default => '—'
             })
+            ->editColumn('sell_day', fn($r) => $r->sell_day ?? ($r->created_at ? $r->created_at->format('Y-m-d') : '—'))
             ->editColumn('shipment_revenue', fn($r) => number_format($r->shipment_revenue) . ' đ')
             ->editColumn('profit', fn($r) => ($r->profit >= 0)
                 ? '<span class="text-success font-weight-bold">+' . number_format($r->profit) . ' đ</span>'

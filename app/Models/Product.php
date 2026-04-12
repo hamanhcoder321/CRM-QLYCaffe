@@ -11,7 +11,8 @@ class Product extends Model
         'name',
         'number_in',
         'number_out',
-        'price',
+        'price',      // Giá bán
+        'cost_price', // Giá vốn / giá nhập
     ];
 
     public function shipment()

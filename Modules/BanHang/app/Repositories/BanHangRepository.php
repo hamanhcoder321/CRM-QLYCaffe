@@ -60,41 +60,47 @@ class BanHangRepository implements BanHangRepositoryInterface
                 'name'             => $data['name'] ?? null,
                 'status'           => $data['status'] ?? 0,
                 'storage'          => $data['storage'] ?? 0,
-                'shipment_revenue' => $data['shipment_revenue'] ?? 0,
-                'profit'           => $data['profit'] ?? 0,
+                'sell_day'         => $data['sell_day'] ?? now()->format('Y-m-d'),
+                'shipment_revenue' => 0,
+                'profit'           => 0,
             ]);
 
-            // 2. Tạo chi tiết + trừ tồn kho
+            // 2. Tạo chi tiết + trừ tồn kho + tính lợi nhuận
+            $totalRevenue = 0;
+            $totalCost    = 0;
+
             foreach ($items as $item) {
                 if (empty($item['product_id']) || empty($item['number_sell'])) continue;
 
-                $qty = (int) $item['number_sell'];
-                $price = (int) ($item['price_sell'] ?? 0);
+                $qty        = (int) $item['number_sell'];
+                $priceSell  = (int) ($item['price_sell'] ?? 0);
+                $product     = Product::find($item['product_id']);
+                $priceImport = (int) ($product->cost_price ?? 0); // giá vốn nhập kho
 
                 SellProduct::create([
-                    'sell_id'            => $sell->id,
-                    'product_id'         => $item['product_id'],
-                    'sell_day'           => $data['sell_day'] ?? now()->format('Y-m-d'),
-                    'fullname_customer'  => $item['fullname_customer'] ?? null,
-                    'number_sell'        => $qty,
-                    'price_sell'         => $price,
-                    'revenue'            => $qty * $price,
-                    'number_produts'     => $item['number_produts'] ?? null,
-                    'note'               => $item['note'] ?? null,
-                    'transport'          => $item['transport'] ?? null,
+                    'sell_id'           => $sell->id,
+                    'product_id'        => $item['product_id'],
+                    'sell_day'          => $data['sell_day'] ?? now()->format('Y-m-d'),
+                    'fullname_customer' => $item['fullname_customer'] ?? null,
+                    'number_sell'       => $qty,
+                    'price_sell'        => $priceSell,
+                    'revenue'           => $qty * $priceSell,
+                    'number_produts'    => $item['number_produts'] ?? null,
+                    'note'              => $item['note'] ?? null,
+                    'transport'         => $item['transport'] ?? null,
                 ]);
 
                 // Trừ tồn kho (tăng number_out)
-                Product::where('id', $item['product_id'])
-                    ->increment('number_out', $qty);
+                Product::where('id', $item['product_id'])->increment('number_out', $qty);
+
+                $totalRevenue += $qty * $priceSell;
+                $totalCost    += $qty * $priceImport;
             }
 
-            // 3. Cập nhật doanh thu tổng
-            $totalRevenue = SellProduct::where('sell_id', $sell->id)->sum('revenue');
-            $sellCost     = optional($sell->shipment?->arrange)->total_arrange ?? 0;
+            // 3. Lợi nhuận = doanh thu bán - giá vốn (giá nhập × số lượng bán)
             $sell->update([
                 'shipment_revenue' => $totalRevenue,
-                'profit'           => $totalRevenue - $sellCost,
+                'profit'           => $totalRevenue - $totalCost,
             ]);
 
             return $sell;

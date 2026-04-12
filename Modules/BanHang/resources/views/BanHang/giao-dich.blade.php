@@ -98,7 +98,7 @@
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header bg-gradient-success text-white">
-        <h5 class="modal-title font-weight-bold"><i class="fas fa-plus-circle mr-2"></i>Tạo giao dịch bán hàng</h5>
+        <h5 class="modal-title font-weight-bold"><i class="fas fa-plus-circle mr-2"></i>Tạo Hóa Đơn</h5>
         <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
@@ -228,7 +228,7 @@ const sellTable = $('#sell-table').DataTable({
         { data: 'DT_RowIndex', orderable: false, className:'pl-3' },
         { data: 'name', defaultContent: '—' },
         { data: 'arrange_name', orderable: false, defaultContent: '—' },
-        { data: 'created_at', render: d => d ? d.substring(0,10) : '—' },
+        { data: 'sell_day', defaultContent: '—' },
         { data: 'so_sp', orderable: false },
         { data: 'shipment_revenue' },
         { data: 'profit' },
@@ -241,10 +241,20 @@ const sellTable = $('#sell-table').DataTable({
 
 // Stats
 function loadStats() {
-    $.get('{{ route("banhang.giao-dich.data") }}', {draw:1,start:0,length:1000}, function(res) {
+    $.get('{{ route("banhang.giao-dich.data") }}', {draw:1,start:0,length:10000}, function(res) {
         const data = res.data || [];
-        $('#stat-gd-total').text(data.length);
+        $('#stat-gd-total').text(res.recordsTotal ?? data.length);
         $('#stat-gd-done').text(data.filter(d => d.status && d.status.includes('Đã')).length);
+
+        let totalRevenue = 0, totalProfit = 0;
+        data.forEach(d => {
+            totalRevenue += d.shipment_revenue_raw ?? 0;
+            totalProfit  += d.profit_raw ?? 0;
+        });
+        $('#stat-gd-revenue').text(totalRevenue > 0 ? totalRevenue.toLocaleString('vi-VN') + ' đ' : '—');
+        const profitEl = $('#stat-gd-profit');
+        profitEl.text(totalProfit !== 0 ? (totalProfit > 0 ? '+' : '') + totalProfit.toLocaleString('vi-VN') + ' đ' : '—');
+        profitEl.css('color', totalProfit >= 0 ? '#15803d' : '#b91c1c');
     });
 }
 
@@ -316,7 +326,7 @@ $('#btn-save-sell').click(function() {
             if(res.success) {
                 $('#sellModal').modal('hide');
                 sellTable.ajax.reload();
-                Swal.fire({icon:'success', title: res.message, timer:2000, showConfirmButton:false});
+                Swal.fire({icon:'success', title: res.message, text: 'Tồn kho đã được cập nhật tự động.', timer:2500, showConfirmButton:false});
             }
         })
         .fail(xhr => {
