@@ -216,7 +216,7 @@ h1 {
             <!-- Session Status -->
             <x-auth-session-status class="mb-4" :status="session('status')" />
 
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}" onsubmit="this.querySelector('button[type=submit]').disabled = true; return true;">
                 @csrf
 
                 {{-- Một block lỗi duy nhất: hiện tất cả lỗi không trùng --}}
