@@ -66,4 +66,13 @@ class Arrange extends Model
     {
         return $this->hasMany(Shipment::class, 'arrange_id');
     }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Arrange $arrange) {
+            foreach ($arrange->shipments as $shipment) {
+                $shipment->delete();
+            }
+        });
+    }
 }
