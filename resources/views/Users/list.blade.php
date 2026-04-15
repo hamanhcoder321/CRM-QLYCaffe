@@ -27,21 +27,16 @@
 @include('layouts/parts/footer')
 
 <script>
-$(function () {
-    $('#users-table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '{{ route('users.data') }}',
-            dataSrc: 'data' // 🔥 thêm dòng này
-        },
-        columns: [
-            { data: 'id' },
-            { data: 'name' },
-            { data: 'email' },
-            { data: 'created_at' },
-            { data: 'updated_at' }
-        ]
-    });
-});
+    $(function () {
+        $('#users-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{!! route('users.data') !!}',
+            columns: [{ data: 'id', name: 'id' },
+            { data: 'name', name: 'name' },
+            { data: 'email', name: 'email' },
+            { data: 'created_at', name: 'created_at' },
+            { data: 'updated_at', name: 'updated_at' }]
+        });
+    }); 
 </script>
