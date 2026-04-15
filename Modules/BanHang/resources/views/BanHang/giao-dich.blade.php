@@ -54,7 +54,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <!-- <div class="col-md-3">
           <div class="info-box shadow-sm">
             <span class="info-box-icon bg-warning"><i class="fas fa-chart-line"></i></span>
             <div class="info-box-content">
@@ -62,7 +62,7 @@
               <span class="info-box-number" id="stat-gd-profit" style="font-size:16px">—</span>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <div class="card shadow-sm">
@@ -209,12 +209,12 @@
 
 <style>
 .badge-result { padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; }
-.badge-hoanthanh { background:#dcfce7;color:#15803d; }
-.badge-nhaplieu { background:#fef9c3;color:#854d0e; }
-.badge-luu { background:#e0f2fe;color:#0369a1; }
+.badge-hoanthanh { color:#15803d; }
+.badge-nhaplieu { color:#854d0e; }
+.badge-luu { color:#0369a1; }
 .btn-action { border:none;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;margin:0 2px; }
-.btn-edit { background:#dbeafe;color:#1d4ed8; }
-.btn-del  { background:#fee2e2;color:#b91c1c; }
+.btn-edit { color:#1d4ed8; }
+.btn-del  { color:#b91c1c; }
 </style>
 
 <script>

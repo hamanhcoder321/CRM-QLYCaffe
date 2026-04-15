@@ -112,13 +112,11 @@
 @include('layouts/parts/footer')
 
 <style>
-.badge-danger { background:#fee2e2;color:#b91c1c; }
-.badge-success { background:#dcfce7;color:#15803d; }
+.badge-danger {color:#b91c1c; }
+.badge-success {color:#15803d; }
 .btn-action { border:none;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;margin:0 2px; }
-.btn-edit { background:#dbeafe;color:#1d4ed8; }
-.btn-del  { background:#fee2e2;color:#b91c1c; }
-.btn-edit:hover { background:#bfdbfe; }
-.btn-del:hover  { background:#fecaca; }
+.btn-edit {color:#1d4ed8; }
+.btn-del  {color:#b91c1c; }
 </style>
 
 <script>

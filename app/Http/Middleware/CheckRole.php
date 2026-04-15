@@ -24,12 +24,12 @@ class CheckRole
         $user->loadMissing('part', 'typeAccount');
 
         $allowed = match ($role) {
-            'admin'     => $user->isAdmin(),
-            'manager'   => $user->isAdminOrManager(),
+            'super_admin' => $user->isSuperAdmin(),
+            'admin'     => $user->isSuperAdminOrAdmin(),
             'warehouse' => $user->canAccessWarehouse(),
             'sales'     => $user->canAccessSales(),
-            'finance'   => $user->canAccessFinance(),
-            'hr'        => $user->canAccessHR(),
+            'bartender' => $user->canAccessBartender(),
+            'server'    => $user->canAccessServer(),
             default     => false,
         };
 

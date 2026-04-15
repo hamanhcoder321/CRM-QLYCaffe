@@ -16,9 +16,9 @@
     $hasNoRole    = !$user?->typeAccount && !$user?->part; // user chưa cấu hình role → mặc định thấy hết
     $canWarehouse = $hasNoRole || ($user?->canAccessWarehouse() ?? false);
     $canSales     = $hasNoRole || ($user?->canAccessSales()     ?? false);
-    $canFinance   = $hasNoRole || ($user?->canAccessFinance()   ?? false);
-    $canHR        = $hasNoRole || ($user?->canAccessHR()        ?? false);
-    $isAdminOrMgr = $hasNoRole || ($user?->isAdminOrManager()   ?? false);
+    $canFinance   = $hasNoRole || ($user?->isSuperAdminOrAdmin() ?? false);
+    $canHR        = $hasNoRole || ($user?->isSuperAdminOrAdmin() ?? false);
+    $isAdminOrMgr = $hasNoRole || ($user?->isSuperAdminOrAdmin() ?? false);
   @endphp
 
   <!-- Brand Logo -->
@@ -51,9 +51,9 @@
       <div class="info">
         <a href="/dashboard" class="d-block font-weight-semibold">{{ $user?->name ?? 'Hệ thống quản trị' }}</a>
         <small class="text-muted">
-          {{ $user?->getPartName() ?: 'Chuỗi cửa hàng cafe' }}
-          @if($user?->isAdmin()) <span class="badge badge-warning ml-1" style="font-size:9px">Admin</span>
-          @elseif($user?->isManager()) <span class="badge badge-info ml-1" style="font-size:9px">QL</span>
+          {{ $user?->isSuperAdmin() ? 'Ban Giám Đốc' : ($user?->isAdmin() ? 'Quản lý chi nhánh' : ($user?->getPartName() ?: 'Chuỗi cửa hàng cafe')) }}
+          @if($user?->isSuperAdmin()) <span class="badge badge-danger ml-1" style="font-size:9px">S.Admin</span>
+          @elseif($user?->isAdmin()) <span class="badge badge-warning ml-1" style="font-size:9px">Admin</span>
           @endif
         </small>
       </div>

@@ -15,7 +15,7 @@
             <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
             <li class="breadcrumb-item active">Chi nhánh</li>
           </ol>
-          @if(auth()->user()?->isAdminOrManager())
+          @if(auth()->user()?->isSuperAdminOrAdmin())
           <button class="btn btn-primary btn-sm pl-3 pr-3" id="btn-add-branch" data-toggle="modal" data-target="#branchModal">
             <i class="fas fa-plus mr-1"></i> Thêm chi nhánh
           </button>
@@ -167,11 +167,11 @@
 
 <style>
 .badge-result { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-.badge-hoanthanh { background: #dcfce7; color: #15803d; }
-.badge-fail      { background: #fee2e2; color: #b91c1c; }
+.badge-hoanthanh { color: #15803d; }
+.badge-fail      { color: #b91c1c; }
 .btn-action { border: none; border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer; margin: 0 2px; }
-.btn-edit   { background: #dbeafe; color: #1d4ed8; }
-.btn-del    { background: #fee2e2; color: #b91c1c; }
+.btn-edit   { color: #1d4ed8; }
+.btn-del    { color: #b91c1c; }
 .btn-edit:hover { background: #bfdbfe; }
 .btn-del:hover  { background: #fecaca; }
 </style>

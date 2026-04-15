@@ -14,74 +14,38 @@ class NhapHangSeeder extends Seeder
         $teamIds = DB::table('teams')->pluck('id')->toArray() ?: [null];
         $userIds = DB::table('users')->pluck('id')->toArray() ?: [null];
 
-        // Hàng hóa thực tế của quán cafe
+        // "đường + hạt caffe + trân trâu + sữa + đá"
         $loaiHang = [
-            ['ten' => 'Cà phê Arabica rang xay',    'prefix' => 'CA'],
-            ['ten' => 'Cà phê Robusta nguyên chất', 'prefix' => 'CR'],
-            ['ten' => 'Sữa tươi Vinamilk 1L',       'prefix' => 'ST'],
-            ['ten' => 'Đường trắng tinh luyện',      'prefix' => 'DT'],
-            ['ten' => 'Ly nhựa 300ml',               'prefix' => 'LY'],
-            ['ten' => 'Ống hút giấy sinh thái',      'prefix' => 'OH'],
-            ['ten' => 'Trà lài Thái Nguyên',         'prefix' => 'TL'],
-            ['ten' => 'Bột matcha Nhật Bản',         'prefix' => 'MB'],
-            ['ten' => 'Đá viên túi 5kg',             'prefix' => 'DV'],
-            ['ten' => 'Syrup dâu tây Monin',         'prefix' => 'SD'],
-            ['ten' => 'Trân châu đen nấu sẵn',       'prefix' => 'TC'],
-            ['ten' => 'Cốc giấy kraft có nắp',       'prefix' => 'CG'],
-            ['ten' => 'Kem béo số 3 (creamer)',      'prefix' => 'KB'],
-            ['ten' => 'Hương vani tổng hợp',         'prefix' => 'HV'],
-            ['ten' => 'Bột cacao nguyên chất',       'prefix' => 'BC'],
+            ['ten' => 'Hạt caffe (Arabica/Robusta)', 'prefix' => 'CF'],
+            ['ten' => 'Đường kính trắng',            'prefix' => 'DG'],
+            ['ten' => 'Trân châu đen',               'prefix' => 'TC'],
+            ['ten' => 'Sữa đặc / Sữa tươi',          'prefix' => 'SU'],
+            ['ten' => 'Đá viên sạch',                'prefix' => 'DA'],
         ];
 
         $kqLabels = [
-            ['result' => 1, 'reason_fail' => null],                         // Hoàn thành
+            ['result' => 1, 'reason_fail' => null], // Hoàn thành
             ['result' => 1, 'reason_fail' => null],
-            ['result' => 1, 'reason_fail' => null],
-            ['result' => 0, 'reason_fail' => null],                         // Nhập liệu
-            ['result' => 2, 'reason_fail' => 'hàng hết hạn sử dụng'],      // Thất bại
-            ['result' => 2, 'reason_fail' => 'nhà cung cấp hủy đơn'],
+            ['result' => 0, 'reason_fail' => null], // Đang xử lý
         ];
 
-        $nhaCungCap = [
-            'Trần Thị Hoa',    'Nguyễn Văn Nam',  'Lê Minh Tuấn',
-            'Phạm Thị Lan',    'Hoàng Văn Đức',   'Vũ Thị Mai',
-            'Đặng Quốc Bình',  'Bùi Thị Ngọc',    'Võ Minh Tâm',
-        ];
-
-        $phones = [
-            '0901234567', '0912345678', '0923456789',
-            '0934567890', '0945678901', '0856789012',
-            '0867890123', '0878901234', '0889012345',
-        ];
-
-        $accounts = [
-            'Zalo Cty Minh Châu',      'Shopee Mall NCC',
-            'acc Tuấn Ngọc',            'Facebook Kho Bình Minh',
-            'Email đặt hàng NCC',       'Hotline đại lý cafe',
-        ];
-
-        $addresses = [
-            'KCN Bình Dương, P.Thuận Giao, Bình Dương',
-            '45 Lý Thái Tổ, Q.Hoàn Kiếm, Hà Nội',
-            'Khu CN Mộc Châu, Sơn La',
-            '128 Nguyễn Văn Linh, Q.7, TP.HCM',
-            'Quốc lộ 1A, Hải Phòng',
-            'Làng nghề trà Tân Cương, Thái Nguyên',
-            '22 Lê Duẩn, Q.Hai Bà Trưng, Hà Nội',
-            '305 Điện Biên Phủ, Q.Bình Thạnh, TP.HCM',
-        ];
+        $nhaCungCap = ['NCC Minh Châu', 'NCC Bình Minh', 'Đại lý Cafe Hà nội'];
+        $phones     = ['0901234567', '0912345678', '0923456789'];
+        $accounts   = ['Zalo Kho', 'Facebook NCC', 'Hotline Đại Lý'];
 
         $rows = [];
+        $insertedArrangesRaw = [];
+
         for ($i = 0; $i < 20; $i++) {
             $hang = $loaiHang[array_rand($loaiHang)];
             $kq   = $kqLabels[array_rand($kqLabels)];
-            $soLo = $hang['prefix'] . '-' . rand(100, 999);
+            $soLo = $hang['prefix'] . '-' . rand(1000, 9999);
 
             $rows[] = [
-                'day'             => Carbon::now()->subDays(rand(1, 90))->format('Y-m-d'),
-                'name_arrange'    => 'Lô ' . $soLo . ' — ' . $hang['ten'],
+                'day'             => Carbon::now()->subDays(rand(1, 30))->format('Y-m-d'),
+                'name_arrange'    => 'Nhập lô ' . $soLo . ' — ' . $hang['ten'],
                 'name_customer'   => $nhaCungCap[array_rand($nhaCungCap)],
-                'address'         => $addresses[array_rand($addresses)],
+                'address'         => 'Hà Nội',
                 'phone_customer'  => $phones[array_rand($phones)],
                 'sale_user_id'    => $userIds[array_rand($userIds)],
                 'part_id'         => $partIds[array_rand($partIds)],
@@ -89,29 +53,55 @@ class NhapHangSeeder extends Seeder
                 'account_social'  => $accounts[array_rand($accounts)],
                 'user_id'         => $userIds[array_rand($userIds)],
                 'support_user_id' => $userIds[array_rand($userIds)],
-                'type_arrange'    => rand(0, 1),
+                'type_arrange'    => 1, // 1 có thể là Nhập
                 'result'          => $kq['result'],
                 'reason_fail'     => $kq['reason_fail'],
-                'total_arrange'   => rand(500, 15000) * 1000,
+                'total_arrange'   => rand(500, 5000) * 1000,
                 'created_at'      => now(),
                 'updated_at'      => now(),
             ];
+            $insertedArrangesRaw[] = $hang['ten'];
         }
 
         DB::table('arranges')->insert($rows);
 
-        // Tự động tạo shipment liên kết
-        $newIds    = DB::table('arranges')->orderBy('id', 'desc')->take(20)->pluck('id');
-        $shipments = $newIds->map(fn($id) => [
-            'arrange_id'  => $id,
-            'customer_id' => null,
-            'car_money'   => rand(0, 5) * 100000,
-            'created_at'  => now(),
-            'updated_at'  => now(),
-        ])->toArray();
+        // Tạo records tương ứng trong shipments
+        $newIds = DB::table('arranges')->orderBy('id', 'desc')->take(20)->pluck('id')->toArray();
+        $newIds = array_reverse($newIds); // đảo lại trật tự
+
+        $shipments = [];
+        foreach ($newIds as $id) {
+            $shipments[] = [
+                'arrange_id'  => $id,
+                'customer_id' => null,
+                'car_money'   => rand(1, 5) * 50000,
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ];
+        }
 
         DB::table('shipments')->insert($shipments);
 
-        $this->command->info('✅ Seed ' . count($rows) . ' lô hàng cafe + ' . count($shipments) . ' đơn nhập thành công!');
+        // Tạo records tương ứng trong storages (Sau đó nhập về kho)
+        $shipmentIds = DB::table('shipments')->orderBy('id', 'desc')->take(20)->pluck('id')->toArray();
+        $shipmentIds = array_reverse($shipmentIds);
+
+        $storages = [];
+        foreach ($shipmentIds as $idx => $sId) {
+            $tenHang = $insertedArrangesRaw[$idx] ?? 'Nguyên liệu không xác định';
+            $storages[] = [
+                'shipment_id'  => $sId,
+                'name_storage' => $tenHang,
+                'created_at'   => now(),
+                'updated_at'   => now(),
+            ];
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('storages')->truncate(); // Dọn kho cũ (nếu có) do lúc nãy MenuSeeder tạo ko có dính líu nhập hàng
+        DB::table('storages')->insert($storages);
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        $this->command->info('✅ Seed ' . count($rows) . ' lô hàng nguyên liệu, ' . count($shipments) . ' phiếu nhập và đẩy ' . count($storages) . ' mã vào kho thành công!');
     }
 }

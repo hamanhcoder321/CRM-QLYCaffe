@@ -106,53 +106,59 @@ class User extends Authenticatable
         return $this->part?->name ?? '';
     }
 
-    /** Admin - toàn quyền */
+    /** Lấy tên vị trí (tự load nếu chưa có) */
+    public function getPositionName(): string
+    {
+        if (!$this->relationLoaded('position')) {
+            $this->load('position');
+        }
+        return $this->position?->name ?? '';
+    }
+
+    /** Super Admin - Giám đốc toàn quyền các chi nhánh */
+    public function isSuperAdmin(): bool
+    {
+        return strtolower($this->getAccountTypeName()) === 'super admin' || strtolower($this->getPositionName()) === 'giám đốc';
+    }
+
+    /** Admin - Quản lý chi nhánh */
     public function isAdmin(): bool
     {
-        return strtolower($this->getAccountTypeName()) === 'admin';
+        return strtolower($this->getAccountTypeName()) === 'admin' || strtolower($this->getPositionName()) === 'quản lý chi nhánh';
     }
 
-    /** Quản lý */
-    public function isManager(): bool
+    /** Tự động cho phép Super Admin hoặc Admin */
+    public function isSuperAdminOrAdmin(): bool
     {
-        return strtolower($this->getAccountTypeName()) === 'quản lý';
+        return $this->isSuperAdmin() || $this->isAdmin();
     }
 
-    /** Admin hoặc Quản lý */
-    public function isAdminOrManager(): bool
-    {
-        return $this->isAdmin() || $this->isManager();
-    }
-
-    /** Nhân viên nhập hàng / kho */
+    /** Nhân viên kho */
     public function canAccessWarehouse(): bool
     {
-        if ($this->isAdminOrManager()) return true;
-        $part = strtolower($this->getPartName());
-        return str_contains($part, 'kho') || str_contains($part, 'vận') || str_contains($part, 'nhập');
+        if ($this->isSuperAdminOrAdmin()) return true;
+        return str_contains(strtolower($this->getPartName()), 'kho');
     }
 
     /** Nhân viên bán hàng */
     public function canAccessSales(): bool
     {
-        if ($this->isAdminOrManager()) return true;
+        if ($this->isSuperAdminOrAdmin()) return true;
         $part = strtolower($this->getPartName());
-        return str_contains($part, 'kinh doanh') || str_contains($part, 'bán') || str_contains($part, 'sale');
+        return str_contains($part, 'bán hàng') || str_contains($part, 'sale');
     }
 
-    /** Nhân viên tài chính / kế toán */
-    public function canAccessFinance(): bool
+    /** Nhân viên pha chế */
+    public function canAccessBartender(): bool
     {
-        if ($this->isAdminOrManager()) return true;
-        $part = strtolower($this->getPartName());
-        return str_contains($part, 'kế toán') || str_contains($part, 'tài chính');
+        if ($this->isSuperAdminOrAdmin()) return true;
+        return str_contains(strtolower($this->getPartName()), 'pha chế');
     }
 
-    /** Nhân sự */
-    public function canAccessHR(): bool
+    /** Nhân viên phục vụ */
+    public function canAccessServer(): bool
     {
-        if ($this->isAdminOrManager()) return true;
-        $part = strtolower($this->getPartName());
-        return str_contains($part, 'nhân sự') || str_contains($part, 'hr');
+        if ($this->isSuperAdminOrAdmin()) return true;
+        return str_contains(strtolower($this->getPartName()), 'phục vụ');
     }
 }
