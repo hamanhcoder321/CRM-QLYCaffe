@@ -80,7 +80,7 @@
                 <th>Nhập về</th>
                 <th>Đã xuất bán</th>
                 <th>Tồn kho</th>
-                <th>Giá trị tồn</th>
+                <!-- <th>Giá trị tồn</th> -->
               </tr>
             </thead>
             <tbody></tbody>
