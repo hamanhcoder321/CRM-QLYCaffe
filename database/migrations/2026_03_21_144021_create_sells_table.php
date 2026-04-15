@@ -14,11 +14,12 @@ return new class extends Migration
         Schema::create('sells', function (Blueprint $table) {
             $table->id();
             $table->foreignId('shipment_id')->nullable()->constrained('shipments')->cascadeOnUpdate();
-            $table->unsignedTinyInteger('status')->default(0)->comment('0: chưa bán, 1: đã bán, 2, lưu kho');
+            $table->unsignedTinyInteger('status')->default(0)->comment('0: chua ban, 1: da ban, 2: luu kho');
+            $table->date('sell_day')->nullable();
             $table->string('name')->nullable();
-            $table->integer('shipment_revenue');
-            $table->integer('profit');
-            $table->unsignedTinyInteger('storage')->default(0)->comment('0: không, 1: có');
+            $table->integer('shipment_revenue')->default(0);
+            $table->integer('profit')->default(0);
+            $table->unsignedTinyInteger('storage')->default(0)->comment('0: khong, 1: co');
             $table->timestamps();
         });
     }

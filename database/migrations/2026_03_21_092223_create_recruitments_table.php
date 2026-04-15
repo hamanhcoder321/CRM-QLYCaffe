@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('recruitments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('part_id')->constrained('parts')->cascadeOnUpdate()->nullable();
-            $table->foreignId('position_id')->constrained('positions')->cascadeOnUpdate()->nullable();
+            $table->foreignId('part_id')->nullable()->constrained('parts')->cascadeOnUpdate();
+            $table->foreignId('position_id')->nullable()->constrained('positions')->cascadeOnUpdate();
             $table->integer('number');
             $table->unsignedTinyInteger('prioritize')->default('0')->comment('0: thap, 1: trung binh, 2: cao');
             $table->dateTime('deadline')->nullable();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnUpdate()->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate();
             $table->string('social')->nullable();
             $table->unsignedTinyInteger('result')->default('0')->comment('0: khong dat, 1: dat');
             $table->unsignedTinyInteger('status')->default('0')->comment('0: đang tuyển, 1: hoàn thành, 2: trễ');

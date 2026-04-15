@@ -20,16 +20,16 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->date('birthday')->nullable();
             $table->unsignedTinyInteger('sex')->default(0)->comment('0: nam, 1: nu');
-            $table->foreignId('part_id')->constrained('parts')->cascadeOnUpdate()->nullable();
-            $table->foreignId('position_id')->constrained('positions')->cascadeOnUpdate()->nullable();
+            $table->foreignId('part_id')->nullable()->constrained('parts')->cascadeOnUpdate();
+            $table->foreignId('position_id')->nullable()->constrained('positions')->cascadeOnUpdate();
             $table->unsignedTinyInteger('type_work')->default(0)->comment('0: fullname, 1: parttime');
-            $table->foreignId('team_id')->constrained('teams')->cascadeOnUpdate()->nullable();
+            $table->foreignId('team_id')->nullable()->constrained('teams')->cascadeOnUpdate();
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->unsignedTinyInteger('status')->default(0)->comment('0: đang làm, 1: nghỉ viec');
             $table->dateTime('start_day')->nullable();
             $table->dateTime('end_day')->nullable();
-            $table->foreignId('type_accounts_id')->constrained('type_accounts')->cascadeOnUpdate()->nullable();
+            $table->foreignId('type_accounts_id')->nullable()->constrained('type_accounts')->cascadeOnUpdate();
             $table->timestamps();
         });
     }

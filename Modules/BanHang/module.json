@@ -1,0 +1,11 @@
+{
+    "name": "BanHang",
+    "alias": "banhang",
+    "description": "Module quản lý bán hàng",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\BanHang\\Providers\\BanHangServiceProvider"
+    ],
+    "files": []
+}
