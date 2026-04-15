@@ -36,4 +36,13 @@ class Shipment extends Model
     {
         return $this->hasMany(Storage::class, 'shipment_id');
     }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Shipment $shipment) {
+            $shipment->products()->delete();
+            $shipment->sells()->delete();
+            $shipment->storages()->delete();
+        });
+    }
 }
