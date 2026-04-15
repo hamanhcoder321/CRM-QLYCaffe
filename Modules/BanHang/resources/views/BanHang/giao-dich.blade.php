@@ -11,7 +11,7 @@
         <div class="col-sm-6 d-flex justify-content-end">
           <ol class="breadcrumb mr-3 mb-0">
             <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
-            {{-- <li class="breadcrumb-item"><a href="#">Bán hàng</a></li> --}}
+            <li class="breadcrumb-item"><a href="#">Bán hàng</a></li>
             <li class="breadcrumb-item active">Giao dịch</li>
           </ol>
           <button class="btn btn-success btn-sm pl-3 pr-3" id="btn-new-sell" data-toggle="modal" data-target="#sellModal">
