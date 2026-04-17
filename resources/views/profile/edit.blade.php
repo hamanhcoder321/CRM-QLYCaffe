@@ -18,8 +18,6 @@
     </div>
   </div>
 
-  
-
       <div class="row">
         <div class="col-lg-7">
           <div class="card shadow-sm">
@@ -52,8 +50,6 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
 </div>
 
 <aside class="control-sidebar control-sidebar-dark"></aside>
