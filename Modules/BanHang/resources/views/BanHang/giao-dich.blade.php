@@ -54,7 +54,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <!-- <div class="col-md-3">
           <div class="info-box shadow-sm">
             <span class="info-box-icon bg-warning"><i class="fas fa-chart-line"></i></span>
             <div class="info-box-content">
@@ -62,7 +62,7 @@
               <span class="info-box-number" id="stat-gd-profit" style="font-size:16px">—</span>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <div class="card shadow-sm">
