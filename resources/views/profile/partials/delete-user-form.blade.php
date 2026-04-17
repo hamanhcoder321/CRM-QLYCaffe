@@ -1,55 +1,38 @@
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Xóa tài khoản') }}
-        </h2>
+<section>
+    <p class="text-muted">Khi tài khoản bị xóa, toàn bộ dữ liệu và tài nguyên sẽ bị xóa vĩnh viễn. Trước khi xóa, hãy tải xuống dữ liệu bạn muốn giữ lại.</p>
 
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __('Khi tài khoản bị xóa, toàn bộ dữ liệu và tài nguyên sẽ bị xóa vĩnh viễn. Trước khi xóa, hãy tải xuống bất kỳ dữ liệu nào bạn muốn giữ lại.') }}
-        </p>
-    </header>
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirm-user-deletion">
+        Xóa tài khoản
+    </button>
 
-    <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Xóa tài khoản') }}</x-danger-button>
-
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+    <div class="modal fade" id="confirm-user-deletion" tabindex="-1" role="dialog" aria-labelledby="confirmUserDeletionLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <form method="post" action="{{ route('profile.destroy') }}">
             @csrf
             @method('delete')
-
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                {{ __('Bạn có chắc muốn xóa tài khoản không?') }}
-            </h2>
-
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                {{ __('Khi tài khoản bị xóa, toàn bộ dữ liệu sẽ bị xóa vĩnh viễn. Vui lòng nhập mật khẩu để xác nhận bạn muốn xóa tài khoản.') }}
-            </p>
-
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Mật khẩu') }}" class="sr-only" />
-
-                <x-text-input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Mật khẩu') }}"
-                />
-
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+            <div class="modal-header">
+              <h5 class="modal-title" id="confirmUserDeletionLabel">Bạn có chắc muốn xóa tài khoản không?</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Hủy') }}
-                </x-secondary-button>
-
-                <x-danger-button class="ms-3">
-                    {{ __('Xóa tài khoản') }}
-                </x-danger-button>
+            <div class="modal-body">
+              <p class="text-muted">Khi tài khoản bị xóa, toàn bộ dữ liệu sẽ bị xóa vĩnh viễn. Vui lòng nhập mật khẩu để xác nhận.</p>
+              <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input id="password" name="password" type="password" class="form-control" placeholder="Mật khẩu" required />
+                @if($errors->userDeletion->has('password'))
+                    <small class="text-danger">{{ $errors->userDeletion->first('password') }}</small>
+                @endif
+              </div>
             </div>
-        </form>
-    </x-modal>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+              <button type="submit" class="btn btn-danger">Xóa tài khoản</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
 </section>
