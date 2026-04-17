@@ -216,12 +216,13 @@
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
+    background: transparent;
 }
-.badge-hoanthanh { background: #dcfce7; color: #15803d; }
-.badge-nhaplieu  { background: #fef9c3; color: #854d0e; }
-.badge-fail      { background: #fee2e2; color: #dc2626; }
-.badge-moi       { background: #dbeafe; color: #1d4ed8; font-size: 11px; border-radius: 20px; padding: 2px 8px; }
-.badge-cu        { background: #f3f4f6; color: #374151; font-size: 11px; border-radius: 20px; padding: 2px 8px; }
+.badge-hoanthanh { color: #15803d; }
+.badge-nhaplieu  { color: #854d0e; }
+.badge-fail      { color: #dc2626; }
+.badge-moi       { color: #1d4ed8; font-size: 11px; border-radius: 20px; padding: 2px 8px; background: transparent; }
+.badge-cu        { color: #374151; font-size: 11px; border-radius: 20px; padding: 2px 8px; background: transparent; }
 
 /* ===== ACTION BUTTONS ===== */
 .btn-action {
@@ -235,11 +236,12 @@
     cursor: pointer;
     font-size: 12px;
     transition: all 0.15s;
+    background: transparent;
 }
-.btn-edit { background: #fef3c7; color: #d97706; }
-.btn-edit:hover { background: #fcd34d; }
-.btn-del  { background: #fee2e2; color: #dc2626; }
-.btn-del:hover { background: #fca5a5; }
+.btn-edit { background: transparent; color: #d97706; }
+.btn-edit:hover { background: transparent; }
+.btn-del  { background: transparent; color: #dc2626; }
+.btn-del:hover { background: transparent; }
 </style>
 
 @include('layouts/parts/footer')
