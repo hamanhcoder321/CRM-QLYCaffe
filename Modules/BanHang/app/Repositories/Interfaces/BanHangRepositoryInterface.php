@@ -16,7 +16,7 @@ interface BanHangRepositoryInterface
     // Giao dịch bán hàng (Sells)
     public function getSells();
     public function storeSell(array $data, array $items);
-    public function updateSell(int $id, array $data);
+    public function updateSell(int $id, array $data, array $items);
     public function deleteSell(int $id);
 
     // Helpers

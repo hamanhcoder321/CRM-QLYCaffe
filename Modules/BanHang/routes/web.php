@@ -26,6 +26,7 @@ Route::middleware(['auth', 'role:sales'])->group(function () {
         Route::get('/giao-dich/data',         [BanHangController::class, 'giaoDichData'])->name('giao-dich.data');
         Route::get('/giao-dich/get/{sell}',   [BanHangController::class, 'giaoDichGet'])->name('giao-dich.get');
         Route::post('/giao-dich/store',       [BanHangController::class, 'giaoDichStore'])->name('giao-dich.store');
+        Route::post('/giao-dich/update/{sell}', [BanHangController::class, 'giaoDichUpdate'])->name('giao-dich.update');
         Route::delete('/giao-dich/delete/{sell}', [BanHangController::class, 'giaoDichDelete'])->name('giao-dich.delete');
     });
 });
