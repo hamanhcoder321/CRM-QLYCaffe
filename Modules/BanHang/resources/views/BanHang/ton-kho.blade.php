@@ -96,9 +96,9 @@
 @include('layouts/parts/footer')
 
 <style>
-.badge-success { color:#15803d;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; }
-.badge-warning { color:#854d0e;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; }
-.badge-danger  { color:#b91c1c;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; }
+.badge-success { color:#15803d;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; background: transparent !important; }
+.badge-warning { color:#854d0e;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; background: transparent !important; }
+.badge-danger  { color:#b91c1c;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; background: transparent !important; }
 </style>
 
 <script>

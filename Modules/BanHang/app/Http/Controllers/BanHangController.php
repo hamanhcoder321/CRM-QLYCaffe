@@ -156,7 +156,6 @@ class BanHangController extends Controller
             ->editColumn('status', fn($r) => match($r->status) {
                 0 => '<span class="badge-result badge-nhaplieu">Chưa bán</span>',
                 1 => '<span class="badge-result badge-hoanthanh">Đã bán</span>',
-                2 => '<span class="badge-result badge-luu">Lưu kho</span>',
                 default => '—'
             })
             ->editColumn('sell_day', fn($r) => $r->sell_day ?? ($r->created_at ? $r->created_at->format('Y-m-d') : '—'))
@@ -182,11 +181,13 @@ class BanHangController extends Controller
     public function giaoDichStore(Request $request)
     {
         $data = $request->validate([
-            'name'        => ['nullable', 'string', 'max:255'],
-            'shipment_id' => ['nullable', 'integer'],
-            'status'      => ['required', 'integer'],
-            'sell_day'    => ['required', 'date'],
-            'items'       => ['required', 'array', 'min:1'],
+            'name'            => ['nullable', 'string', 'max:255'],
+            'shipment_id'     => ['nullable', 'integer'],
+            'status'          => ['required', 'integer'],
+            'sell_day'        => ['required', 'date'],
+            'payment_method'  => ['nullable', 'string', 'max:50'],
+            'paid_amount'     => ['nullable', 'integer', 'min:0'],
+            'items'           => ['required', 'array', 'min:1'],
             'items.*.product_id'  => ['required', 'integer', 'exists:products,id'],
             'items.*.number_sell' => ['required', 'integer', 'min:1'],
             'items.*.price_sell'  => ['required', 'integer', 'min:0'],
@@ -198,6 +199,29 @@ class BanHangController extends Controller
 
         $sell = $this->repo->storeSell($data, $data['items']);
         return response()->json(['success' => true, 'message' => 'Tạo giao dịch thành công!', 'id' => $sell->id]);
+    }
+
+    public function giaoDichUpdate(Request $request, Sell $sell)
+    {
+        $data = $request->validate([
+            'name'            => ['nullable', 'string', 'max:255'],
+            'shipment_id'     => ['nullable', 'integer'],
+            'status'          => ['required', 'integer'],
+            'sell_day'        => ['required', 'date'],
+            'payment_method'  => ['nullable', 'string', 'max:50'],
+            'paid_amount'     => ['nullable', 'integer', 'min:0'],
+            'items'           => ['required', 'array', 'min:1'],
+            'items.*.product_id'  => ['required', 'integer', 'exists:products,id'],
+            'items.*.number_sell' => ['required', 'integer', 'min:1'],
+            'items.*.price_sell'  => ['required', 'integer', 'min:0'],
+        ], [
+            'items.required'              => 'Phải có ít nhất 1 sản phẩm',
+            'items.*.product_id.required' => 'Chọn sản phẩm',
+            'items.*.number_sell.min'     => 'Số lượng phải ≥ 1',
+        ]);
+
+        $this->repo->updateSell($sell->id, $data, $data['items']);
+        return response()->json(['success' => true, 'message' => 'Cập nhật giao dịch thành công!']);
     }
 
     public function giaoDichGet(Sell $sell)

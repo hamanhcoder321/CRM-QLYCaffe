@@ -6,7 +6,7 @@
     <div class="container-fluid">
       <div class="row mb-2 align-items-center">
         <div class="col-sm-6">
-          <h1 class="m-0 font-weight-bold"><i class="fas fa-mug-hot text-warning mr-2"></i>Menu Thức Uống</h1>
+          <h1 class="m-0 font-weight-bold"><i class="fas fa-mug-hot text-info mr-2"></i>Menu Thức Uống</h1>
         </div>
         <div class="col-sm-6 d-flex justify-content-end">
           <ol class="breadcrumb mr-3 mb-0">
@@ -14,7 +14,7 @@
             <li class="breadcrumb-item"><a href="#">Bán hàng</a></li>
             <li class="breadcrumb-item active">Thức uống</li>
           </ol>
-          <button class="btn btn-warning btn-sm pl-3 pr-3" id="btn-add-product" data-toggle="modal" data-target="#productModal">
+          <button class="btn btn-info btn-sm pl-3 pr-3" id="btn-add-product" data-toggle="modal" data-target="#productModal">
             <i class="fas fa-plus mr-1"></i> Thêm thức uống
           </button>
         </div>
@@ -26,12 +26,12 @@
     <div class="container-fluid">
       <div class="card shadow-sm">
         <div class="card-header border-0 d-flex justify-content-between align-items-center">
-          <h3 class="card-title font-weight-bold mb-0"><i class="fas fa-list mr-2 text-warning"></i>Danh sách thức uống</h3>
+          <h3 class="card-title font-weight-bold mb-0"><i class="fas fa-list mr-2 text-info"></i>Danh sách thức uống</h3>
           <span class="text-muted small">Dữ liệu từ nhập hàng</span>
         </div>
         <div class="card-body table-responsive p-0">
           <table id="product-table" class="table table-hover table-striped mb-0 text-sm">
-            <thead class="bg-gradient-warning">
+            <thead class="bg-gradient-info">
               <tr>
                 <th class="pl-3">#</th>
                 <th>Tên thức uống</th>
@@ -55,7 +55,7 @@
 <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <div class="modal-header bg-gradient-warning">
+      <div class="modal-header bg-gradient-info">
         <h5 class="modal-title font-weight-bold" id="modal-title-product">
           <i class="fas fa-mug-hot mr-2"></i>Thêm thức uống mới
         </h5>
@@ -102,7 +102,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i>Hủy</button>
-        <button type="button" class="btn btn-warning text-white" id="btn-save-product"><i class="fas fa-save mr-1"></i>Lưu</button>
+        <button type="button" class="btn btn-info text-white" id="btn-save-product"><i class="fas fa-save mr-1"></i>Lưu</button>
       </div>
     </div>
   </div>
@@ -112,8 +112,9 @@
 @include('layouts/parts/footer')
 
 <style>
-.badge-danger {color:#b91c1c; }
-.badge-success {color:#15803d; }
+.badge-success { color:#15803d;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; background: transparent !important; }
+.badge-warning { color:#854d0e;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; background: transparent !important; }
+.badge-danger  { color:#b91c1c;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; background: transparent !important; }
 .btn-action { border:none;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;margin:0 2px; }
 .btn-edit {color:#1d4ed8; }
 .btn-del  {color:#b91c1c; }

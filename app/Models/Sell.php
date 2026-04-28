@@ -11,10 +11,12 @@ class Sell extends Model
         'branch_id',
         'status',
         'sell_day',
+        'name',
+        'payment_method',
+        'paid_amount',
         'shipment_revenue',
         'profit',
         'storage',
-        'name',
     ];
 
     /** Lô hàng của đơn bán */
