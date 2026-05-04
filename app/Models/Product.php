@@ -9,6 +9,7 @@ class Product extends Model
     protected $fillable = [
         'shipment_id',
         'name',
+        'image',
         'number_in',
         'number_out',
         'price',      // Giá bán

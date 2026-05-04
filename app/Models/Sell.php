@@ -17,6 +17,7 @@ class Sell extends Model
         'shipment_revenue',
         'profit',
         'storage',
+        'note',
     ];
 
     /** Lô hàng của đơn bán */

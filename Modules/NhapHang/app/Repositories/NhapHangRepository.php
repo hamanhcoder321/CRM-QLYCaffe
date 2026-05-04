@@ -44,7 +44,7 @@ class NhapHangRepository implements NhapHangRepositoryInterface
         return DataTables::of($query)
             ->addIndexColumn()
             ->editColumn('day', fn($row) => optional($row->day)->format('d/m/Y') ?? '')
-            ->editColumn('part_id', fn($row) => $row->part->name ?? '')
+            ->editColumn('part_id', fn($row) => '<span style="background-color: #64748b; color: white; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">Kho</span>')
             ->editColumn('team_id', fn($row) => $row->team->name ?? '')
             ->editColumn('sale_user_id', fn($row) => $row->saleUser->name ?? '')
             ->editColumn('user_id', fn($row) => $row->user->name ?? '')
@@ -74,7 +74,7 @@ class NhapHangRepository implements NhapHangRepositoryInterface
                     </div>
                 ';
             })
-            ->rawColumns(['action', 'result', 'type_arrange'])
+            ->rawColumns(['action', 'result', 'type_arrange', 'part_id'])
             ->filter(function ($query) use ($request) {
                 $search = $request->input('search.value');
                 if ($search) {
@@ -161,7 +161,13 @@ class NhapHangRepository implements NhapHangRepositoryInterface
         return [
             'parts'   => Part::select('id', 'name as text')->orderBy('name')->get(),
             'teams'   => Team::select('id', 'name as text')->orderBy('name')->get(),
-            'users'   => User::select('id', 'name as text')->where('status', 0)->orderBy('name')->get(),
+            'users'   => User::select('id', 'name as text')
+                                ->where('status', 0)
+                                ->whereHas('part', function ($query) {
+                                    $query->where('name', 'Kho');
+                                })
+                                ->orderBy('name')
+                                ->get(),
             'results' => [
                 ['id' => 0, 'text' => 'Nhập liệu'],
                 ['id' => 1, 'text' => 'Hoàn thành'],

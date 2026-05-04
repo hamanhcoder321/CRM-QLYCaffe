@@ -1,0 +1,11 @@
+{
+    "name": "TuyenDung",
+    "alias": "tuyendung",
+    "description": "Module quản lý tuyển dụng",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\TuyenDung\\Providers\\TuyenDungServiceProvider"
+    ],
+    "files": []
+}

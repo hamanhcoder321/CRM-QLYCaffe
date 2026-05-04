@@ -37,13 +37,9 @@
                                         <th>#</th>
                                         <th>Ngày</th>
                                         <th>Tên lô hàng</th>
-                                        <th>Tên khách hàng</th>
-                                        <th>Địa chỉ</th>
-                                        <th>SĐT Khách</th>
-                                        <th>Người chốt</th>
+                                        <th>Nhà cung cấp</th>
+                                        <th>SĐT NCC</th>
                                         <th>Bộ phận</th>
-                                        <th>Đội nhóm</th>
-                                        <th>Tài khoản chốt</th>
                                         <th>Người bốc</th>
                                         <th>Người phụ bốc</th>
                                         <th>Loại lô</th>
@@ -89,61 +85,36 @@
                             <input type="text" name="name_arrange" id="f_name_arrange" class="form-control form-control-sm" placeholder="VD: Lô QB-001">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Tên khách hàng</label>
+                            <label class="form-label">Tên nhà cung cấp</label>
                             <input type="text" name="name_customer" id="f_name_customer" class="form-control form-control-sm">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">SĐT Khách</label>
+                            <label class="form-label">SĐT NCC</label>
                             <input type="text" name="phone_customer" id="f_phone_customer" class="form-control form-control-sm">
-                        </div>
-
-                        {{-- Hàng 2 --}}
-                        <div class="col-md-6">
-                            <label class="form-label">Địa chỉ</label>
-                            <input type="text" name="address" id="f_address" class="form-control form-control-sm">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Tài khoản chốt</label>
-                            <input type="text" name="account_social" id="f_account_social" class="form-control form-control-sm">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Tổng giá trị</label>
                             <input type="number" name="total_arrange" id="f_total_arrange" class="form-control form-control-sm" placeholder="0">
                         </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
 
                         {{-- Hàng 3 --}}
-                        <div class="col-md-3">
-                            <label class="form-label">Bộ phận</label>
-                            <select name="part_id" id="f_part_id" class="form-select form-select-sm">
-                                <option value="">-- Chọn bộ phận --</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Đội nhóm</label>
-                            <select name="team_id" id="f_team_id" class="form-select form-select-sm">
-                                <option value="">-- Chọn đội nhóm --</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Người chốt</label>
-                            <select name="sale_user_id" id="f_sale_user_id" class="form-select form-select-sm">
-                                <option value="">-- Chọn --</option>
-                            </select>
-                        </div>
                         <div class="col-md-3">
                             <label class="form-label">Người bốc</label>
                             <select name="user_id" id="f_user_id" class="form-select form-select-sm">
                                 <option value="">-- Chọn --</option>
                             </select>
                         </div>
-
-                        {{-- Hàng 4 --}}
                         <div class="col-md-3">
                             <label class="form-label">Người phụ bốc</label>
                             <select name="support_user_id" id="f_support_user_id" class="form-select form-select-sm">
                                 <option value="">-- Chọn --</option>
                             </select>
                         </div>
+
+
                         <div class="col-md-3">
                             <label class="form-label">Loại lô</label>
                             <select name="type_arrange" id="f_type_arrange" class="form-select form-select-sm">
@@ -274,12 +245,8 @@ $(function () {
             { data: 'day',             name: 'day' },
             { data: 'name_arrange',    name: 'name_arrange' },
             { data: 'name_customer',   name: 'name_customer' },
-            { data: 'address',         name: 'address' },
             { data: 'phone_customer',  name: 'phone_customer' },
-            { data: 'sale_user_id',    name: 'sale_user_id' },
             { data: 'part_id',         name: 'part_id' },
-            { data: 'team_id',         name: 'team_id' },
-            { data: 'account_social',  name: 'account_social' },
             { data: 'user_id',         name: 'user_id' },
             { data: 'support_user_id', name: 'support_user_id' },
             { data: 'type_arrange',    name: 'type_arrange' },
@@ -312,22 +279,18 @@ $(function () {
             const $bar = $('.dt-toolbar', this.api().table().container());
             if (!$bar.children().length) {
                 $bar.html(`
-                    <select id="ft_part"   class="form-select form-select-sm ms-1" style="width:130px"><option value="">Bộ phận</option></select>
-                    <select id="ft_team"   class="form-select form-select-sm ms-1" style="width:130px"><option value="">Đội nhóm</option></select>
                     <select id="ft_result" class="form-select form-select-sm ms-1" style="width:140px"><option value="">Kết quả</option></select>
                     <button id="btn-clear-ft" class="btn btn-sm btn-outline-secondary ms-1">Xóa lọc</button>
                 `);
             }
 
             $.getJSON('{!! route('nhaphang.filters') !!}').done(res => {
-                fillSelect('#ft_part',   res.part_f);
-                fillSelect('#ft_team',   res.team_f);
                 fillSelect('#ft_result', res.result_f);
             });
 
-            $(document).on('change', '#ft_part, #ft_team, #ft_result', () => DT.ajax.reload());
+            $(document).on('change', '#ft_result', () => DT.ajax.reload());
             $('#btn-clear-ft').on('click', function () {
-                $('#ft_part, #ft_team, #ft_result').val('');
+                $('#ft_result').val('');
                 DT.ajax.reload();
             });
         }
@@ -336,9 +299,6 @@ $(function () {
     // ===== LOAD FORM OPTIONS =====
     $.getJSON('{!! route('nhaphang.form-options') !!}').done(res => {
         formOptions = res;
-        fillSelect('#f_part_id',        res.parts);
-        fillSelect('#f_team_id',        res.teams);
-        fillSelect('#f_sale_user_id',   res.users);
         fillSelect('#f_user_id',        res.users);
         fillSelect('#f_support_user_id',res.users);
         fillSelect('#f_type_arrange',   res.type_arranges);
@@ -398,12 +358,7 @@ $(function () {
             $('#f_name_arrange').val(data.name_arrange);
             $('#f_name_customer').val(data.name_customer);
             $('#f_phone_customer').val(data.phone_customer);
-            $('#f_address').val(data.address);
-            $('#f_account_social').val(data.account_social);
             $('#f_total_arrange').val(data.total_arrange);
-            $('#f_part_id').val(data.part_id);
-            $('#f_team_id').val(data.team_id);
-            $('#f_sale_user_id').val(data.sale_user_id);
             $('#f_user_id').val(data.user_id);
             $('#f_support_user_id').val(data.support_user_id);
             $('#f_type_arrange').val(data.type_arrange);
