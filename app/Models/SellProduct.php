@@ -8,6 +8,7 @@ class SellProduct extends Model
 {
     protected $fillable = [
         'product_id',
+        'drink_id',
         'sell_id',
         'sell_day',
         'fullname_customer',
@@ -25,6 +26,11 @@ class SellProduct extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function drink()
+    {
+        return $this->belongsTo(Drink::class, 'drink_id');
     }
 
     public function sell()

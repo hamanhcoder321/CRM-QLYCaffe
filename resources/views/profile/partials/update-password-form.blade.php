@@ -29,9 +29,6 @@
 
         <div class="d-flex justify-content-end align-items-center">
             <button type="submit" class="btn btn-success">Lưu</button>
-            @if (session('status') === 'password-updated')
-                <span class="badge badge-success ml-3">Đã lưu.</span>
-            @endif
         </div>
     </form>
 </section>

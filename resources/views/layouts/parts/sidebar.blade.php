@@ -8,7 +8,7 @@
     $isFinance    = request()->is('finance*') || request()->is('salary*') || request()->is('expenses*');
     $isPurchasing = request()->is('arranges*') || request()->is('shipments*') || request()->is('customers*') || request()->is('nhap-hang*');
     $isSales      = request()->is('ban-hang*') || request()->is('sales*');
-    $isHr         = request()->is('recruitments*') || request()->is('facilities*') || request()->is('timesheets*');
+    $isHr         = request()->is('recruitments*') || request()->is('facilities*') || request()->is('timesheets*') || request()->is('tuyen-dung*');
     $isConfig     = request()->is('salary-mechanism*') || request()->is('settings*');
     $isAccount    = request()->is('users') || request()->is('account') || request()->is('chi-nhanh*');
 
@@ -163,15 +163,15 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="{{ route('banhang.thuc-uong') }}" class="nav-link {{ request()->is('ban-hang/thuc-uong*') ? 'active' : '' }}">
+              <a href="{{ route('banhang.thuc-don') }}" class="nav-link {{ request()->is('ban-hang/thuc-don*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
-                <p>Menu thức uống</p>
+                <p>Thực đơn / Menu</p>
               </a>
             </li>
             <li class="nav-item">
               <a href="{{ route('banhang.ton-kho') }}" class="nav-link {{ request()->is('ban-hang/ton-kho*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
-                <p>Tồn kho</p>
+                <p>Kho nguyên liệu</p>
               </a>
             </li>
             <li class="nav-item">
@@ -196,13 +196,13 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('tuyendung.list') }}" class="nav-link {{ request()->is('tuyen-dung*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Tuyển dụng</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('nhansu.facilities') }}" class="nav-link {{ request()->is('facilities*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Cơ sở vật chất</p>
               </a>

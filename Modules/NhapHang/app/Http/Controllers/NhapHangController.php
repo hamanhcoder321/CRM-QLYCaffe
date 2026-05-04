@@ -139,7 +139,7 @@ class NhapHangController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->editColumn('arrange_id', fn($r) => $r->arrange->name_arrange ?? '—')
-            ->editColumn('customer_id', fn($r) => $r->customer->fullname ?? '—')
+            ->editColumn('customer_id', fn($r) => $r->customer->fullname ?? ($r->arrange->name_customer ?? '—'))
             ->editColumn('car_money', fn($r) => $r->car_money ? number_format($r->car_money) . ' đ' : '0 đ')
             ->addColumn('tong_gia_tri', fn($r) => $r->arrange ? number_format($r->arrange->total_arrange ?? 0) . ' đ' : '—')
             ->addColumn('ngay', fn($r) => $r->arrange ? optional($r->arrange->day)->format('d/m/Y') : '—')

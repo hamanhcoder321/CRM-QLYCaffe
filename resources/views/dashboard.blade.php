@@ -75,7 +75,9 @@
               <small class="text-muted">6 tháng gần nhất</small>
             </div>
             <div class="card-body">
-              <canvas id="chart-lo-hang" height="120"></canvas>
+              <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="chart-lo-hang"></canvas>
+              </div>
             </div>
           </div>
         </div>
@@ -89,7 +91,9 @@
               </h3>
             </div>
             <div class="card-body d-flex flex-column align-items-center">
-              <canvas id="chart-ket-qua" height="200" style="max-width:220px"></canvas>
+              <div style="position: relative; height: 220px; width: 100%; display: flex; justify-content: center;">
+                <canvas id="chart-ket-qua"></canvas>
+              </div>
               <div class="mt-3 d-flex gap-3" style="gap:12px; font-size:12px;">
                 <span><i class="fas fa-circle" style="color:#22c55e"></i> Hoàn thành</span>
                 <span><i class="fas fa-circle" style="color:#f59e0b"></i> Nhập liệu</span>
@@ -112,7 +116,9 @@
               </h3>
             </div>
             <div class="card-body">
-              <canvas id="chart-nhan-vien" height="220"></canvas>
+              <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="chart-nhan-vien"></canvas>
+              </div>
             </div>
           </div>
         </div>
@@ -190,6 +196,7 @@ new Chart(document.getElementById('chart-lo-hang'), {
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
             legend: { position: 'top' },
@@ -222,6 +229,7 @@ new Chart(document.getElementById('chart-ket-qua'), {
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         cutout: '65%',
         plugins: {
             legend: { display: false },
@@ -252,6 +260,7 @@ new Chart(document.getElementById('chart-nhan-vien'), {
     options: {
         indexAxis: 'y',
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
             tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' người' } }

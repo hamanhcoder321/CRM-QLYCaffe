@@ -1,0 +1,11 @@
+{
+    "name": "NhanSu",
+    "alias": "nhansu",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\NhanSu\\Providers\\NhanSuServiceProvider"
+    ],
+    "files": []
+}
