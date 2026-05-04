@@ -14,7 +14,7 @@
             <li class="breadcrumb-item"><a href="#">Bán hàng</a></li>
             <li class="breadcrumb-item active">Giao dịch</li>
           </ol>
-          <button class="btn btn-success btn-sm pl-3 pr-3" id="btn-new-sell" data-toggle="modal" data-target="#sellModal">
+          <button class="btn btn-success btn-sm pl-3 pr-3" id="btn-new-sell">
             <i class="fas fa-plus mr-1"></i>Tạo giao dịch
           </button>
         </div>
@@ -78,7 +78,6 @@
                 <th>Ngày bán</th>
                 <th>Sản phẩm</th>
                 <th>Doanh thu</th>
-                <th>Lợi nhuận</th>
                 <th>Trạng thái</th>
                 <th class="text-center">Thao tác</th>
               </tr>
@@ -114,11 +113,17 @@
         <div class="row mb-3">
           <div class="col-md-4">
             <label>Trạng thái <span class="text-danger">*</span></label>
-            <select id="sell-status" class="form-control">
+            <select id="sell-status" class="form-control" name="status">
               <option value="1">Đã bán</option>
               <option value="0">Chưa bán</option>
             </select>
           </div>
+          <div class="col-md-8 d-none" id="reason-not-sell-container">
+            <label>Lý do chưa bán / Ghi chú <span class="text-danger">*</span></label>
+            <input type="text" id="sell-note" name="note" class="form-control" placeholder="Ví dụ: Khách đổi ý, Hết nguyên liệu...">
+          </div>
+        </div>
+        <div class="row mb-3">
           <div class="col-md-4">
             <label>Hình thức thanh toán <span class="text-danger">*</span></label>
             <select id="sell-payment-method" class="form-control">
@@ -163,8 +168,8 @@
           <table class="table table-bordered text-sm" id="item-table">
             <thead class="bg-light">
               <tr>
-                <th style="width:35%">Thức uống</th>
-                <th style="width:15%">Tồn kho</th>
+                <th style="width:30%">Thức uống</th>
+                <th style="width:20%">Ghi chú (Tùy chọn)</th>
                 <th style="width:15%">Số lượng bán</th>
                 <th style="width:15%">Đơn giá (đ)</th>
                 <th style="width:15%">Thành tiền</th>
@@ -176,14 +181,27 @@
                 <td>
                   <select class="form-control form-control-sm product-select">
                     <option value="">-- Chọn thức uống --</option>
-                    @foreach($products as $p)
-                      <option value="{{ $p->id }}" data-price="{{ $p->price }}" data-tonkho="{{ $p->ton_kho }}">
-                        {{ $p->name }} (còn {{ $p->ton_kho }})
+                    @foreach($drinks as $d)
+                      <option value="{{ $d->id }}" data-price="{{ $d->price }}">
+                        {{ $d->name }}
                       </option>
                     @endforeach
                   </select>
                 </td>
-                <td><span class="ton-kho-badge text-muted">—</span></td>
+                <td>
+                  <div class="note-wrapper">
+                    <input type="text" class="form-control form-control-sm note-input mb-1" placeholder="Tùy chọn...">
+                    <div class="d-flex flex-wrap mt-1" style="gap: 4px;">
+                      <span class="badge badge-light border note-tag" style="cursor:pointer" data-val="Thêm đường">+Đường</span>
+                      <span class="badge badge-light border note-tag" style="cursor:pointer" data-val="Ít đường">-Đường</span>
+                      <span class="badge badge-light border note-tag" style="cursor:pointer" data-val="Thêm đá">+Đá</span>
+                      <span class="badge badge-light border note-tag" style="cursor:pointer" data-val="Ít đá">-Đá</span>
+                      <span class="badge badge-light border note-tag" style="cursor:pointer" data-val="Không đá">0 Đá</span>
+                      <span class="badge badge-light border note-tag" style="cursor:pointer" data-val="Thêm cafe">+Cafe</span>
+                      <span class="badge badge-light border text-danger" style="cursor:pointer" onclick="$(this).closest('td').find('.note-input').val('')">Xóa</span>
+                    </div>
+                  </div>
+                </td>
                 <td><input type="number" class="form-control form-control-sm qty-input" value="1" min="1"></td>
                 <td><input type="number" class="form-control form-control-sm price-input" value="0" min="0"></td>
                 <td><span class="total-cell font-weight-bold text-success">0 đ</span></td>
@@ -192,8 +210,8 @@
             </tbody>
             <tfoot>
               <tr class="bg-light">
-                <td colspan="4" class="text-right font-weight-bold">Tổng doanh thu:</td>
-                <td colspan="2" class="font-weight-bold text-success" id="grand-total">0 đ</td>
+                <td colspan="3" class="text-right font-weight-bold">Tổng doanh thu:</td>
+                <td colspan="3" class="font-weight-bold text-success" id="grand-total">0 đ</td>
               </tr>
             </tfoot>
           </table>
@@ -276,7 +294,6 @@ const sellTable = $('#sell-table').DataTable({
         { data: 'sell_day', defaultContent: '—' },
         { data: 'so_sp', orderable: false },
         { data: 'shipment_revenue' },
-        { data: 'profit' },
         { data: 'status', orderable: false },
         { data: 'action', orderable: false, className:'text-center' },
     ],
@@ -297,9 +314,6 @@ function loadStats() {
             totalProfit  += d.profit_raw ?? 0;
         });
         $('#stat-gd-revenue').text(totalRevenue > 0 ? totalRevenue.toLocaleString('vi-VN') + ' đ' : '—');
-        const profitEl = $('#stat-gd-profit');
-        profitEl.text(totalProfit !== 0 ? (totalProfit > 0 ? '+' : '') + totalProfit.toLocaleString('vi-VN') + ' đ' : '—');
-        profitEl.css('color', totalProfit >= 0 ? '#15803d' : '#b91c1c');
     });
 }
 
@@ -416,9 +430,7 @@ $(document).on('change', '.product-select', function() {
     const opt = $(this).find(':selected');
     const row = $(this).closest('tr');
     const price  = opt.data('price') || 0;
-    const tonkho = opt.data('tonkho') || 0;
     row.find('.price-input').val(price);
-    row.find('.ton-kho-badge').text(tonkho > 0 ? 'Còn: ' + tonkho : 'Hết hàng').css('color', tonkho <= 0 ? 'red' : 'green');
     calcRow(row);
 }).on('input', '.qty-input, .price-input', function() {
     calcRow($(this).closest('tr'));
@@ -434,33 +446,73 @@ $('#btn-add-item').click(function() {
     newRow.find('.product-select').val('');
     newRow.find('.qty-input').val(1);
     newRow.find('.price-input').val(0);
+    newRow.find('.note-input').val('');
     newRow.find('.total-cell').text('0 đ');
-    newRow.find('.ton-kho-badge').text('—').css('color','');
     $('#sell-items').append(newRow);
     calcGrandTotal();
 });
 
 $('#btn-new-sell').click(function() {
     window.currentEditSellId = null;
-    $('#sellModal .modal-title').html('<i class="fas fa-plus-circle mr-2"></i>Tạo Hóa Đơn');
-    
-    $('#sell-day').val('{{ date("Y-m-d") }}');
-    $('#sell-name').val('');
-    $('#sell-status').val('1');
-    $('#sell-payment-method').val('');
+    openModal();
+});
+
+function openModal(isEdit = false, data = null) {
+    // Reset form
+    $('#sell-name, #sell-note').val('');
     $('#sell-paid').val('0');
+    $('#sell-status').val('1').trigger('change');
+    $('#sell-payment-method').val('');
+    $('#transfer-qr-row').addClass('d-none');
+    $('#sell-day').val('{{ date("Y-m-d") }}');
     
+    // Reset items: giữ lại đúng 1 row trống
     $('.item-row:not(:first)').remove();
     const firstRow = $('.item-row:first');
     firstRow.find('.product-select').val('');
     firstRow.find('.qty-input').val(1);
     firstRow.find('.price-input').val(0);
+    firstRow.find('.note-input').val('');
     firstRow.find('.total-cell').text('0 đ');
-    firstRow.find('.ton-kho-badge').text('—').css('color','');
+    
+    $('#grand-total').text('0 đ');
+
+    if (isEdit && data) {
+        window.currentEditSellId = data.id;
+        $('#sellModal .modal-title').html('<i class="fas fa-edit mr-2"></i>Cập nhật Hóa Đơn');
+        $('#sell-day').val(data.sell_day ? data.sell_day.substring(0,10) : '{{ date("Y-m-d") }}');
+        $('#sell-name').val(data.name || '');
+        $('#sell-status').val(data.status).trigger('change');
+        $('#sell-note').val(data.note || '');
+        $('#sell-payment-method').val(data.payment_method || '');
+        $('#sell-paid').val(data.paid_amount || 0);
+        
+        const products = data.sell_products || [];
+        products.forEach((sp, index) => {
+            let row;
+            if (index === 0) {
+                row = $('.item-row:first');
+            } else {
+                row = $('.item-row:first').clone();
+                row.find('.product-select').val('');
+                row.find('.total-cell').text('0 đ');
+                $('#sell-items').append(row);
+            }
+            row.find('.product-select').val(sp.drink_id);
+            row.find('.qty-input').val(sp.number_sell ?? 1);
+            row.find('.price-input').val(sp.price_sell ?? 0);
+            row.find('.note-input').val(sp.note ?? '');
+            calcRow(row);
+        });
+    } else {
+        window.currentEditSellId = null;
+        $('#sellModal .modal-title').html('<i class="fas fa-plus-circle mr-2"></i>Tạo Hóa Đơn');
+    }
     
     calcGrandTotal();
     updatePaymentSummary();
-});
+    $('#sellModal').modal('show');
+}
 
 // ===== LƯU GIAO DỊCH =====
 $('#btn-save-sell').click(function() {
@@ -470,8 +522,9 @@ $('#btn-save-sell').click(function() {
         const pid = $(this).find('.product-select').val();
         const qty = parseInt($(this).find('.qty-input').val()) || 0;
         const price = parseInt($(this).find('.price-input').val()) || 0;
+        const note = $(this).find('.note-input').val() || '';
         if (!pid || qty < 1) { valid = false; return false; }
-        items.push({ product_id: pid, number_sell: qty, price_sell: price });
+        items.push({ drink_id: pid, number_sell: qty, price_sell: price, note: note });
     });
     if (!valid) { Swal.fire('Lỗi','Vui lòng chọn đầy đủ sản phẩm và số lượng!','warning'); return; }
 
@@ -490,21 +543,21 @@ $('#btn-save-sell').click(function() {
         }
     }
     
-    const data = {
-        sell_day:        $('#sell-day').val(),
-        name:            $('#sell-name').val().trim(),
-        shipment_id:     null,
-        status:          $('#sell-status').val(),
-        payment_method:  $('#sell-payment-method').val(),
-        paid_amount:     parseInt($('#sell-paid').val()) || 0,
-        items:           items,
+    const payload = {
+        sell_day: $('#sell-day').val(),
+        name: $('#sell-name').val(),
+        status: $('#sell-status').val(),
+        payment_method: $('#sell-payment-method').val(),
+        paid_amount: $('#sell-paid').val(),
+        note: $('#sell-note').val(),
+        items: items
     };
 
     const url = window.currentEditSellId 
         ? '/ban-hang/giao-dich/update/' + window.currentEditSellId
         : '{{ route("banhang.giao-dich.store") }}';
 
-    $.post(url, data)
+    $.post(url, payload)
         .done(res => {
             if(res.success) {
                 $('#sellModal').modal('hide');
@@ -528,7 +581,7 @@ window.viewSell = function(id) {
         let rows = '';
         (res.sell_products || []).forEach(sp => {
             rows += `<tr>
-                <td>${sp.product?.name ?? '—'}</td>
+                <td>${sp.drink?.name ?? '—'}${sp.note ? ` <br><small class="text-muted">(${sp.note})</small>` : ''}</td>
                 <td>${sp.number_sell ?? 0}</td>
                 <td>${(sp.price_sell ?? 0).toLocaleString('vi-VN')} đ</td>
                 <td><strong>${(sp.revenue ?? 0).toLocaleString('vi-VN')} đ</strong></td>
@@ -540,7 +593,6 @@ window.viewSell = function(id) {
                 <div class="col-md-6"><strong>Hình thức thanh toán:</strong> ${({cash:'Tiền mặt',card:'Thẻ',transfer:'Chuyển khoản',momo:'Ví điện tử'}[res.payment_method] ?? res.payment_method ?? '—')}</div>
                 <div class="col-md-6 mt-2"><strong>Khách đã trả:</strong> <span class="text-success">${(res.paid_amount ?? 0).toLocaleString('vi-VN')} đ</span></div>
                 <div class="col-md-6 mt-2"><strong>Doanh thu:</strong> <span class="text-success">${(res.shipment_revenue ?? 0).toLocaleString('vi-VN')} đ</span></div>
-                <div class="col-md-6 mt-2"><strong>Lợi nhuận:</strong> <span class="${(res.profit??0)>=0?'text-success':'text-danger'}">${(res.profit ?? 0).toLocaleString('vi-VN')} đ</span></div>
             </div>
             <table class="table table-bordered text-sm">
                 <thead class="bg-light"><tr><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead>
@@ -560,44 +612,8 @@ window.viewSell = function(id) {
 $('#btn-edit-sell-modal').click(function() {
     $('#viewSellModal').modal('hide');
     if (!currentSellId) return;
-    
     $.get('/ban-hang/giao-dich/get/' + currentSellId, function(res) {
-        window.currentEditSellId = currentSellId;
-        $('#sellModal .modal-title').html('<i class="fas fa-edit mr-2"></i>Cập nhật Hóa Đơn');
-        
-        $('#sell-day').val(res.sell_day ? res.sell_day.split(' ')[0] : '{{ date("Y-m-d") }}');
-        $('#sell-name').val(res.name ?? '');
-        $('#sell-status').val(res.status ?? 0);
-        $('#sell-payment-method').val(res.payment_method ?? '');
-        $('#sell-paid').val(res.paid_amount ?? 0);
-        
-        $('.item-row:not(:first)').remove();
-        
-        const products = res.sell_products || [];
-        if (products.length > 0) {
-            products.forEach((sp, index) => {
-                let row;
-                if (index === 0) {
-                    row = $('.item-row:first');
-                } else {
-                    row = $('.item-row:first').clone();
-                    $('#sell-items').append(row);
-                }
-                
-                row.find('.product-select').val(sp.product_id);
-                row.find('.qty-input').val(sp.number_sell ?? 1);
-                row.find('.price-input').val(sp.price_sell ?? 0);
-                
-                const opt = row.find('.product-select option:selected');
-                const tonkho = opt.data('tonkho') || 0;
-                
-                row.find('.ton-kho-badge').text(tonkho > 0 ? 'Còn: ' + tonkho : 'Hết hàng').css('color', tonkho <= 0 ? 'red' : 'green');
-                calcRow(row);
-            });
-        }
-        
-        calcGrandTotal();
-        $('#sellModal').modal('show');
+        openModal(true, res);
     });
 });
 
@@ -610,7 +626,7 @@ $('#btn-print-invoice').click(function() {
                 const revenue = sp.number_sell * sp.price_sell;
                 totalRevenue += revenue;
                 itemRows += `<tr>
-                    <td class="text-left">${sp.product?.name ?? '—'}</td>
+                    <td class="text-left">${sp.drink?.name ?? '—'}${sp.note ? `<br><small>(${sp.note})</small>` : ''}</td>
                     <td class="text-center">${sp.number_sell ?? 0}</td>
                     <td class="text-right">${(sp.price_sell ?? 0).toLocaleString('vi-VN')}</td>
                     <td class="text-right"><strong>${revenue.toLocaleString('vi-VN')}</strong></td>
@@ -705,4 +721,28 @@ window.deleteSell = function(id) {
             }
         });
 };
+
+$(document).on('click', '.note-tag', function() {
+    const input = $(this).closest('.note-wrapper').find('.note-input');
+    const val = $(this).data('val');
+    if (!val) return;
+    let current = input.val().trim();
+    if (current) {
+        if (!current.includes(val)) {
+            input.val(current + ', ' + val);
+        }
+    } else {
+        input.val(val);
+    }
+});
+
+// Hiển thị khung ghi chú khi Chưa bán
+$('#sell-status').on('change', function() {
+    if ($(this).val() === '0') {
+        $('#reason-not-sell-container').removeClass('d-none');
+    } else {
+        $('#reason-not-sell-container').addClass('d-none');
+        $('#sell-note').val('');
+    }
+});
 </script>

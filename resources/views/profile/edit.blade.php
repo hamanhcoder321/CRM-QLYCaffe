@@ -56,3 +56,47 @@
 <aside class="control-sidebar control-sidebar-dark"></aside>
 
 @include('layouts.parts.footer')
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session('status') === 'profile-updated')
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: 'Cập nhật thông tin cá nhân thành công.',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    @endif
+
+    @if(session('status') === 'password-updated')
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: 'Đổi mật khẩu thành công.',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    @endif
+
+    @if($errors->updatePassword->any() || $errors->has('name') || $errors->has('email'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Cập nhật thất bại',
+            text: 'Vui lòng kiểm tra lại thông tin nhập vào!',
+            showConfirmButton: true
+        });
+    @endif
+
+    @if($errors->userDeletion->any())
+        Swal.fire({
+            icon: 'error',
+            title: 'Xóa thất bại',
+            text: '{{ $errors->userDeletion->first("password") }}',
+            showConfirmButton: true
+        });
+        $('#confirm-user-deletion').modal('show');
+    @endif
+});
+</script>

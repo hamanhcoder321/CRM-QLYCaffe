@@ -10,11 +10,7 @@
                     <div class="row">
                         <div class="d-flex justify-content-between align-items-center py-3 w-100">
                             <h4 class="mb-0 fw-bold">Danh sách Tài khoản</h4>
-                            @if(session('success'))
-                                <div class="alert alert-success">
-                                    {{ session('success') }}
-                                </div>
-                            @endif
+                            <!-- Thông báo sẽ được xử lý bằng SweetAlert bên dưới -->
                             <a href="{{ route('users.created') }}" class="btn btn-primary btn-sm" id="btn-open-create">
                                 <i class="fas fa-plus"></i> Thêm mới
                             </a>
@@ -100,9 +96,20 @@
 
 @include('layouts/parts/footer')
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     window.DT = null;
     $(function () {
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công!',
+                text: '{{ session("success") }}',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        @endif
+
         window.DT = $('#users-table').DataTable({
             processing: true,
             serverSide: true,

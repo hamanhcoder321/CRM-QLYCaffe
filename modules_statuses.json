@@ -1,5 +1,7 @@
 {
     "User": true,
     "NhapHang": true,
-    "BanHang": true
+    "BanHang": true,
+    "NhanSu": true,
+    "TuyenDung": true
 }

@@ -6,13 +6,19 @@ use Modules\BanHang\Http\Controllers\BanHangController;
 Route::middleware(['auth', 'role:sales'])->group(function () {
     Route::prefix('ban-hang')->name('banhang.')->group(function () {
 
-        // Thức uống
-        Route::get('/thuc-uong',              [BanHangController::class, 'thuocUong'])->name('thuc-uong');
-        Route::get('/thuc-uong/data',         [BanHangController::class, 'thuocUongData'])->name('thuc-uong.data');
-        Route::get('/thuc-uong/get/{product}', [BanHangController::class, 'thuocUongGet'])->name('thuc-uong.get');
-        Route::post('/thuc-uong/store',       [BanHangController::class, 'thuocUongStore'])->name('thuc-uong.store');
-        Route::post('/thuc-uong/update/{product}', [BanHangController::class, 'thuocUongUpdate'])->name('thuc-uong.update');
-        Route::delete('/thuc-uong/delete/{product}', [BanHangController::class, 'thuocUongDelete'])->name('thuc-uong.delete');
+        // Thực đơn / Menu (Drinks)
+        Route::get('/thuc-don',              [BanHangController::class, 'thucDon'])->name('thuc-don');
+        Route::get('/thuc-don/data',         [BanHangController::class, 'thucDonData'])->name('thuc-don.data');
+        Route::get('/thuc-don/get/{drink}',  [BanHangController::class, 'thucDonGet'])->name('thuc-don.get');
+        Route::post('/thuc-don/store',       [BanHangController::class, 'thucDonStore'])->name('thuc-don.store');
+        Route::post('/thuc-don/update/{drink}', [BanHangController::class, 'thucDonUpdate'])->name('thuc-don.update');
+        Route::delete('/thuc-don/delete/{drink}', [BanHangController::class, 'thucDonDelete'])->name('thuc-don.delete');
+
+        // Nguyên liệu (Products) - CRUD dùng chung cho Tồn Kho
+        Route::get('/nguyen-lieu/get/{product}', [BanHangController::class, 'thuocUongGet'])->name('nguyen-lieu.get');
+        Route::post('/nguyen-lieu/store',       [BanHangController::class, 'thuocUongStore'])->name('nguyen-lieu.store');
+        Route::post('/nguyen-lieu/update/{product}', [BanHangController::class, 'thuocUongUpdate'])->name('nguyen-lieu.update');
+        Route::delete('/nguyen-lieu/delete/{product}', [BanHangController::class, 'thuocUongDelete'])->name('nguyen-lieu.delete');
 
         // Tồn kho
         Route::get('/ton-kho',      [BanHangController::class, 'tonKho'])->name('ton-kho');

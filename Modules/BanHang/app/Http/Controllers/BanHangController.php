@@ -13,16 +13,148 @@ class BanHangController extends Controller
 {
     public function __construct(protected BanHangRepositoryInterface $repo) {}
 
-    // ================== THỨC UỐNG ==================
+    // ================== THỰC ĐƠN / MENU (DRINKS) ==================
 
-    public function getShipments()
+    public function thucDon()
     {
-        return response()->json($this->repo->getShipmentsForSelect());
+        return view('banhang::BanHang.thuc-don');
     }
+
+    public function thucDonData(Request $request)
+    {
+        abort_unless($request->ajax(), 403);
+        $drinks = \App\Models\Drink::with('recipes.product')->latest()->get();
+        return DataTables::of($drinks)
+            ->addIndexColumn()
+            ->editColumn('name', function($r) {
+                $img = $r->image ? asset('storage/' . $r->image) : 'https://placehold.co/40x40?text=Drink';
+                return '<div class="d-flex align-items-center"><img src="'.$img.'" style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px"> <span>' . htmlspecialchars($r->name) . '</span></div>';
+            })
+            ->editColumn('price', fn($r) => number_format($r->price) . ' đ')
+            ->addColumn('recipes', function($r) {
+                if ($r->recipes->isEmpty()) return '<span class="text-muted small">Chưa có công thức</span>';
+                $html = '<ul class="mb-0 pl-3 small">';
+                foreach($r->recipes as $rc) {
+                    $html .= '<li>' . ($rc->product->name ?? 'N/A') . ' (' . $rc->quantity . ')</li>';
+                }
+                $html .= '</ul>';
+                return $html;
+            })
+            ->editColumn('status', fn($r) => $r->status == 1 ? '<span class="badge badge-success">Đang bán</span>' : '<span class="badge badge-danger">Ngừng bán</span>')
+            ->addColumn('action', fn($r) => '
+                <div class="d-flex gap-1">
+                    <button class="btn-action btn-edit" onclick="openEditDrink(' . $r->id . ')" title="Sửa">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action btn-del" onclick="deleteDrink(' . $r->id . ')" title="Xóa">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            ')
+            ->rawColumns(['name', 'recipes', 'status', 'action'])
+            ->make(true);
+    }
+
+    public function thucDonGet(\App\Models\Drink $drink)
+    {
+        return response()->json($drink->load('recipes.product'));
+    }
+
+    public function thucDonStore(Request $request)
+    {
+        $data = $request->validate([
+            'name'   => ['required', 'string', 'max:255'],
+            'price'  => ['required', 'integer', 'min:0'],
+            'status' => ['required', 'integer'],
+            'image'  => ['nullable', 'image', 'max:2048'],
+            'recipes'=> ['nullable', 'string'] // JSON string from frontend
+        ]);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('drinks', 'public');
+        }
+
+        $drink = \App\Models\Drink::create([
+            'name' => $data['name'],
+            'price' => $data['price'],
+            'status' => $data['status'],
+            'image' => $data['image'] ?? null
+        ]);
+
+        if (!empty($data['recipes'])) {
+            $recipes = json_decode($data['recipes'], true);
+            foreach ($recipes as $rc) {
+                if (!empty($rc['product_id']) && !empty($rc['quantity'])) {
+                    \App\Models\Recipe::create([
+                        'drink_id' => $drink->id,
+                        'product_id' => $rc['product_id'],
+                        'quantity' => $rc['quantity']
+                    ]);
+                }
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Thêm thực đơn thành công!']);
+    }
+
+    public function thucDonUpdate(Request $request, \App\Models\Drink $drink)
+    {
+        $data = $request->validate([
+            'name'   => ['required', 'string', 'max:255'],
+            'price'  => ['required', 'integer', 'min:0'],
+            'status' => ['required', 'integer'],
+            'image'  => ['nullable', 'image', 'max:2048'],
+            'recipes'=> ['nullable', 'string']
+        ]);
+
+        if ($request->hasFile('image')) {
+            if ($drink->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($drink->image)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($drink->image);
+            }
+            $data['image'] = $request->file('image')->store('drinks', 'public');
+        }
+
+        $drink->update([
+            'name' => $data['name'],
+            'price' => $data['price'],
+            'status' => $data['status'],
+            'image' => $data['image'] ?? $drink->image
+        ]);
+
+        if (isset($data['recipes'])) {
+            $drink->recipes()->delete(); // Clear old recipes
+            $recipes = json_decode($data['recipes'], true);
+            if(is_array($recipes)) {
+                foreach ($recipes as $rc) {
+                    if (!empty($rc['product_id']) && !empty($rc['quantity'])) {
+                        \App\Models\Recipe::create([
+                            'drink_id' => $drink->id,
+                            'product_id' => $rc['product_id'],
+                            'quantity' => $rc['quantity']
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Cập nhật thành công!']);
+    }
+
+    public function thucDonDelete(\App\Models\Drink $drink)
+    {
+        if ($drink->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($drink->image)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($drink->image);
+        }
+        $drink->delete();
+        return response()->json(['success' => true, 'message' => 'Đã xóa thực đơn!']);
+    }
+
+    // ================== NGUYÊN LIỆU KHO (PRODUCTS) ==================
 
     public function thuocUong()
     {
-        return view('banhang::BanHang.thuc-uong');
+        // Route này không dùng nữa nhưng giữ hàm lại tránh lỗi gọi nhầm
+        return view('banhang::BanHang.ton-kho');
     }
 
     public function thuocUongData(Request $request)
@@ -31,7 +163,10 @@ class BanHangController extends Controller
 
         return DataTables::of($this->repo->getProducts())
             ->addIndexColumn()
-            ->addColumn('shipment_name', fn($r) => $r->shipment?->arrange?->name_arrange ?? '—')
+            ->editColumn('name', function($r) {
+                $img = $r->image ? asset('storage/' . $r->image) : 'https://placehold.co/40x40?text=Drink';
+                return '<div class="d-flex align-items-center"><img src="'.$img.'" style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px"> <span>' . htmlspecialchars($r->name) . '</span></div>';
+            })
             ->editColumn('price', fn($r) => number_format($r->price) . ' đ')
             ->addColumn('ton_kho', function($r) {
                 $ton = ($r->number_in ?? 0) - ($r->number_out ?? 0);
@@ -51,7 +186,7 @@ class BanHangController extends Controller
                     </button>
                 </div>
             ')
-            ->rawColumns(['ton_kho', 'action'])
+            ->rawColumns(['name', 'ton_kho', 'action'])
             ->make(true);
     }
 
@@ -63,7 +198,11 @@ class BanHangController extends Controller
             'number_in'   => ['required', 'integer', 'min:0'],
             'price'       => ['required', 'integer', 'min:0'],
             'cost_price'  => ['nullable', 'integer', 'min:0'],
-        ], ['name.required' => 'Tên thức uống bắt buộc']);
+        ], ['name.required' => 'Tên nguyên liệu bắt buộc']);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $data['number_out'] = 0;
         $data['cost_price'] = (int) ($data['cost_price'] ?? 0);
@@ -82,6 +221,7 @@ class BanHangController extends Controller
     {
         $data = $request->validate([
             'name'        => ['required', 'string', 'max:255'],
+            'image'       => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg,webp', 'max:2048'],
             'shipment_id' => ['nullable', 'integer', 'exists:shipments,id'],
             'number_in'   => ['required', 'integer', 'min:0'],
             'price'       => ['required', 'integer', 'min:0'],
@@ -90,7 +230,19 @@ class BanHangController extends Controller
 
         $data['cost_price'] = (int) ($data['cost_price'] ?? 0);
         $data['shipment_id'] = empty($data['shipment_id']) ? null : $data['shipment_id'];
+        
+        // Bỏ qua update ảnh vì Nguyên liệu không dùng ảnh nữa
+        unset($data['image']);
+
         $this->repo->updateProduct($product->id, $data);
+
+        if ($request->has('type_arrange') && $request->type_arrange !== null) {
+            $product->refresh();
+            if ($product->shipment?->arrange) {
+                $product->shipment->arrange->update(['type_arrange' => $request->type_arrange]);
+            }
+        }
+
         return response()->json(['success' => true, 'message' => 'Cập nhật thành công!']);
     }
 
@@ -114,6 +266,11 @@ class BanHangController extends Controller
         return DataTables::of($this->repo->getTonKho())
             ->addIndexColumn()
             ->addColumn('shipment_name', fn($r) => $r->shipment?->arrange?->name_arrange ?? '—')
+            ->addColumn('shipment_type', function($r) {
+                $type = $r->shipment?->arrange?->type_arrange;
+                return $type === 0 ? '<span style="color:#1d4ed8; font-size:11px; font-weight:600">Mới</span>' 
+                     : ($type === 1 ? '<span style="color:#374151; font-size:11px; font-weight:600">Cũ</span>' : '—');
+            })
             ->addColumn('price_raw', fn($r) => (int) $r->price)
             ->editColumn('price', fn($r) => number_format($r->price) . ' đ')
             ->addColumn('con_lai_raw', fn($r) => ($r->number_in ?? 0) - ($r->number_out ?? 0))
@@ -123,7 +280,17 @@ class BanHangController extends Controller
                 if ($val <= 20) return '<span class="badge badge-warning px-2">' . $val . '</span>';
                 return '<span class="badge badge-success px-2">' . $val . '</span>';
             })
-            ->rawColumns(['con_lai'])
+            ->addColumn('action', fn($r) => '
+                <div class="d-flex gap-1 justify-content-center">
+                    <button class="btn-action btn-edit" onclick="openEditProduct(' . $r->id . ')" title="Sửa">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action btn-del" onclick="deleteProduct(' . $r->id . ')" title="Xóa">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            ')
+            ->rawColumns(['con_lai', 'shipment_type', 'action'])
             ->make(true);
     }
 
@@ -132,16 +299,9 @@ class BanHangController extends Controller
     public function giaoDich()
     {
         $shipments = $this->repo->getShipmentsForSelect();
-        $products  = Product::orderBy('name')
-            ->get()
-            ->map(function ($p) {
-                $p->ton_kho = ($p->number_in ?? 0) - ($p->number_out ?? 0);
-                return $p;
-            })
-            ->filter(fn($p) => $p->ton_kho > 0)
-            ->values();
+        $drinks = \App\Models\Drink::with('recipes')->where('status', 1)->orderBy('name')->get();
 
-        return view('banhang::BanHang.giao-dich', compact('shipments', 'products'));
+        return view('banhang::BanHang.giao-dich', compact('shipments', 'drinks'));
     }
 
     public function giaoDichData(Request $request)
@@ -151,19 +311,24 @@ class BanHangController extends Controller
         return DataTables::of($this->repo->getSells())
             ->addIndexColumn()
             ->addColumn('arrange_name', fn($r) => $r->shipment?->arrange?->name_arrange ?? '—')
-            ->addColumn('shipment_revenue_raw', fn($r) => (int) $r->shipment_revenue)
-            ->addColumn('profit_raw', fn($r) => (int) $r->profit)
+            // Chỉ tính doanh thu / lợi nhuận khi Đã bán (status = 1)
+            ->addColumn('shipment_revenue_raw', fn($r) => $r->status == 1 ? (int) $r->shipment_revenue : 0)
+            ->addColumn('profit_raw',           fn($r) => $r->status == 1 ? (int) $r->profit          : 0)
             ->editColumn('status', fn($r) => match($r->status) {
                 0 => '<span class="badge-result badge-nhaplieu">Chưa bán</span>',
                 1 => '<span class="badge-result badge-hoanthanh">Đã bán</span>',
                 default => '—'
             })
             ->editColumn('sell_day', fn($r) => $r->sell_day ?? ($r->created_at ? $r->created_at->format('Y-m-d') : '—'))
-            ->editColumn('shipment_revenue', fn($r) => number_format($r->shipment_revenue) . ' đ')
-            ->editColumn('profit', fn($r) => ($r->profit >= 0)
-                ? '<span class="text-success font-weight-bold">+' . number_format($r->profit) . ' đ</span>'
-                : '<span class="text-danger">-' . number_format(abs($r->profit)) . ' đ</span>')
-            ->addColumn('so_sp', fn($r) => $r->sellProducts->count() . ' sản phẩm')
+            // Hiển thị 0 đ nếu Chưa bán, bất kể giá trị lưu trong DB
+            ->editColumn('shipment_revenue', fn($r) => $r->status == 1 ? number_format($r->shipment_revenue) . ' đ' : '—')
+            ->editColumn('profit', function($r) {
+                if ($r->status != 1) return '—';
+                return $r->profit >= 0
+                    ? '<span class="text-success font-weight-bold">+' . number_format($r->profit) . ' đ</span>'
+                    : '<span class="text-danger">-' . number_format(abs($r->profit)) . ' đ</span>';
+            })
+            ->addColumn('so_sp', fn($r) => $r->sellProducts->sum('number_sell') . ' món')
             ->addColumn('action', fn($r) => '
                 <div class="d-flex gap-1">
                     <button class="btn-action btn-edit" onclick="viewSell(' . $r->id . ')" title="Chi tiết">
@@ -188,12 +353,13 @@ class BanHangController extends Controller
             'payment_method'  => ['nullable', 'string', 'max:50'],
             'paid_amount'     => ['nullable', 'integer', 'min:0'],
             'items'           => ['required', 'array', 'min:1'],
-            'items.*.product_id'  => ['required', 'integer', 'exists:products,id'],
+            'items.*.drink_id'    => ['required', 'integer', 'exists:drinks,id'],
             'items.*.number_sell' => ['required', 'integer', 'min:1'],
             'items.*.price_sell'  => ['required', 'integer', 'min:0'],
+            'items.*.note'        => ['nullable', 'string', 'max:255'],
         ], [
             'items.required'              => 'Phải có ít nhất 1 sản phẩm',
-            'items.*.product_id.required' => 'Chọn sản phẩm',
+            'items.*.drink_id.required'   => 'Chọn thức uống',
             'items.*.number_sell.min'     => 'Số lượng phải ≥ 1',
         ]);
 
@@ -211,12 +377,13 @@ class BanHangController extends Controller
             'payment_method'  => ['nullable', 'string', 'max:50'],
             'paid_amount'     => ['nullable', 'integer', 'min:0'],
             'items'           => ['required', 'array', 'min:1'],
-            'items.*.product_id'  => ['required', 'integer', 'exists:products,id'],
+            'items.*.drink_id'    => ['required', 'integer', 'exists:drinks,id'],
             'items.*.number_sell' => ['required', 'integer', 'min:1'],
             'items.*.price_sell'  => ['required', 'integer', 'min:0'],
+            'items.*.note'        => ['nullable', 'string', 'max:255'],
         ], [
             'items.required'              => 'Phải có ít nhất 1 sản phẩm',
-            'items.*.product_id.required' => 'Chọn sản phẩm',
+            'items.*.drink_id.required'   => 'Chọn thức uống',
             'items.*.number_sell.min'     => 'Số lượng phải ≥ 1',
         ]);
 
@@ -226,7 +393,7 @@ class BanHangController extends Controller
 
     public function giaoDichGet(Sell $sell)
     {
-        return response()->json($sell->load('sellProducts.product', 'shipment.arrange'));
+        return response()->json($sell->load('sellProducts.drink', 'shipment.arrange'));
     }
 
     public function giaoDichDelete(Sell $sell)

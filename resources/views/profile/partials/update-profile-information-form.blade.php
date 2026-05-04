@@ -35,9 +35,6 @@
 
         <div class="d-flex justify-content-end align-items-center">
             <button type="submit" class="btn btn-primary">Lưu</button>
-            @if (session('status') === 'profile-updated')
-                <span class="badge badge-success ml-3">Đã lưu.</span>
-            @endif
         </div>
     </form>
 </section>
