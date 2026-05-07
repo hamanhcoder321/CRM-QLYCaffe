@@ -8,7 +8,7 @@
     $isFinance    = request()->is('finance*') || request()->is('salary*') || request()->is('expenses*');
     $isPurchasing = request()->is('arranges*') || request()->is('shipments*') || request()->is('customers*') || request()->is('nhap-hang*');
     $isSales      = request()->is('ban-hang*') || request()->is('sales*');
-    $isHr         = request()->is('recruitments*') || request()->is('facilities*') || request()->is('timesheets*') || request()->is('tuyen-dung*');
+    $isHr         = request()->is('recruitments*') || request()->is('facilities*') || request()->is('timesheets*') || request()->is('tuyen-dung*') || request()->is('*cham-cong*');
     $isConfig     = request()->is('salary-mechanism*') || request()->is('settings*');
     $isAccount    = request()->is('users') || request()->is('account') || request()->is('chi-nhanh*');
 
@@ -97,23 +97,17 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('taichinh.quyet-toan') }}" class="nav-link {{ request()->is('tai-chinh/quyet-toan*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Bảng quyết toán</p>
               </a>
             </li>
-            <li class="nav-item">
-              <a href="#" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Bảng lương</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="#" class="nav-link">
+            <!-- <li class="nav-item">
+              <a href="{{ route('quanlychitieu.index') }}" class="nav-link {{ request()->is('quan-ly-chi-tieu*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Quản lý chi tiêu</p>
               </a>
-            </li>
+            </li> -->
           </ul>
         </li>
         @endif
@@ -196,9 +190,15 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="{{ route('tuyendung.list') }}" class="nav-link {{ request()->is('tuyen-dung*') ? 'active' : '' }}">
+              <a href="{{ route('tuyendung.list') }}" class="nav-link {{ request()->is('tuyen-dung') || (request()->is('tuyen-dung/*') && !request()->is('tuyen-dung/applications*')) ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Tuyển dụng</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ route('tuyendung.applications.list') }}" class="nav-link {{ request()->is('tuyen-dung/applications*') ? 'active' : '' }}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Danh sách ứng tuyển</p>
               </a>
             </li>
             <li class="nav-item">
@@ -208,7 +208,7 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('nhansu.cham-cong') }}" class="nav-link {{ request()->is('*cham-cong*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Chấm công</p>
               </a>
@@ -238,7 +238,7 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ route('cocheluong.index') }}" class="nav-link {{ request()->is('salary-mechanism*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Cơ chế lương</p>
               </a>

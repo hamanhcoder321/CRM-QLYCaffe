@@ -7,6 +7,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::post('/apply', [\App\Http\Controllers\RecruitmentApplicationController::class, 'store'])->name('apply.store');
+
 
 // DASHBOARD  -> phải đăng nhập mới vào được
 Route::get('/dashboard', [DashboardController::class, 'index'])

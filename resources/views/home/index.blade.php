@@ -130,6 +130,44 @@ ROUTE: GET / → home.index
 
         footer { background: var(--cafe-dark); color: rgba(255, 255, 255, 0.7); text-align: center; padding: 32px 60px; font-size: 14px; }
         footer strong { color: var(--white); }
+        
+        .btn-apply {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 12px; margin-top: 16px;
+            background: var(--cafe-brown); color: #fff; border: none; border-radius: 10px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-apply:hover { background: var(--cafe-dark); transform: scale(1.02); }
+
+        /* Modal Styles */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: #fff; padding: 32px; border-radius: 16px; width: 100%; max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); position: relative; animation: modalSlide 0.3s ease;
+        }
+        @keyframes modalSlide { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { margin-bottom: 24px; }
+        .modal-header h2 { font-size: 24px; font-weight: 800; color: var(--cafe-dark); }
+        .modal-close { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-gray); }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--cafe-dark); }
+        .form-group input {
+            width: 100%; padding: 12px 16px; border: 1.5px solid #eee; border-radius: 10px;
+            font-size: 15px; transition: border-color 0.2s; outline: none;
+        }
+        .form-group input:focus { border-color: var(--cafe-brown); }
+        .btn-submit {
+            width: 100%; padding: 14px; background: var(--cafe-gold); color: #fff;
+            border: none; border-radius: 10px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; margin-top: 10px;
+        }
+        .btn-submit:hover { background: #b8822c; }
+        .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
 
         @media (max-width: 900px) {
             .navbar { padding: 14px 20px; }
@@ -292,6 +330,9 @@ ROUTE: GET / → home.index
                             <strong>Vấn đề:</strong> {{ $recruitment->obstacle ?? '—' }}<br>
                             <strong>Giải pháp:</strong> {{ $recruitment->solution ?? '—' }}
                         </div>
+                        <button class="btn-apply" onclick="openApplyModal({{ $recruitment->id }}, '{{ $recruitment->position?->name ?? 'Vị trí đang tuyển' }}')">
+                            <i class="fas fa-paper-plane"></i> Ứng tuyển ngay
+                        </button>
                     </div>
                 @endforeach
             </div>
@@ -346,7 +387,99 @@ ROUTE: GET / → home.index
         <p>© {{ date('Y') }} <strong>M&T Cafe Management</strong> — Hệ thống quản lý chuỗi cafe.</p>
     </footer>
 
+    <!-- Modal Ứng Tuyển -->
+    <div id="applyModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeApplyModal()">&times;</span>
+            <div class="modal-header">
+                <h2 id="modalTitle">Ứng tuyển vị trí</h2>
+                <p style="font-size: 14px; color: var(--text-gray);">Vui lòng điền thông tin để chúng tôi liên hệ.</p>
+            </div>
+            <form id="applyForm">
+                @csrf
+                <input type="hidden" name="recruitment_id" id="modalRecruitmentId">
+                <div class="form-group">
+                    <label>Họ và tên <span style="color:red">*</span></label>
+                    <input type="text" name="name" placeholder="VD: Nguyễn Văn A" required>
+                </div>
+                <div class="form-group">
+                    <label>Email <span style="color:red">*</span></label>
+                    <input type="email" name="email" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại <span style="color:red">*</span></label>
+                    <input type="tel" name="phone" placeholder="09xxxxxxxx" required>
+                </div>
+                <button type="submit" class="btn-submit" id="btnSubmitApply">Gửi hồ sơ ứng tuyển</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- Script cần thiết --}}
+    <script src="{{ asset('Adminlte/plugins/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('Adminlte/plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
+
     <script>
+        function openApplyModal(id, title) {
+            document.getElementById('modalRecruitmentId').value = id;
+            document.getElementById('modalTitle').innerText = 'Ứng tuyển: ' + title;
+            document.getElementById('applyModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeApplyModal() {
+            document.getElementById('applyModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Đóng khi click ra ngoài
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('applyModal')) {
+                closeApplyModal();
+            }
+        }
+
+        $(document).ready(function() {
+            $('#applyForm').on('submit', function(e) {
+                e.preventDefault();
+                const $btn = $('#btnSubmitApply');
+                $btn.prop('disabled', true).text('Đang gửi...');
+
+                $.ajax({
+                    url: "{{ route('apply.store') }}",
+                    method: "POST",
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        if (res.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: res.message,
+                                confirmButtonColor: '#6f4e37'
+                            });
+                            closeApplyModal();
+                            $('#applyForm')[0].reset();
+                        }
+                    },
+                    error: function(err) {
+                        let msg = 'Có lỗi xảy ra, vui lòng thử lại sau.';
+                        if (err.status === 422) {
+                            const errors = err.responseJSON.errors;
+                            msg = Object.values(errors).flat().join('\n');
+                        }
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi!',
+                            text: msg,
+                        });
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).text('Gửi hồ sơ ứng tuyển');
+                    }
+                });
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const revealItems = document.querySelectorAll('.reveal');
 

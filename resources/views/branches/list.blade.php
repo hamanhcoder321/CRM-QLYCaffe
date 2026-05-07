@@ -191,7 +191,7 @@ const branchTable = $('#branch-table').DataTable({
         { data: 'phone',   defaultContent: '—' },
         { data: 'manager_name', defaultContent: '—', orderable: false },
         { data: null, orderable: false, searchable: false, render: (_, __, row) => {
-            return '<a href="/chi-nhanh?branch=' + row.id + '" class="text-primary">' + (row.users_count ?? 0) + ' NV</a>';
+            return '<a href="{{ route('branches.list') }}?branch=' + row.id + '" class="text-primary">' + (row.users_count ?? 0) + ' NV</a>';
         }},
         { data: 'status', orderable: false },
         { data: 'action',  orderable: false, className: 'text-center' },
@@ -208,32 +208,17 @@ const branchTable = $('#branch-table').DataTable({
 
 // ===== LOAD USERS CHO DROPDOWN MANAGER =====
 function loadManagers(selectedId = '') {
-    $.get('/api/users-list', function(data) {
+    $.get('{{ route("branches.managers") }}', function(data) {
         let opts = '<option value="">-- Chọn quản lý --</option>';
-        data.forEach(u => {
+        (data || []).forEach(u => {
             opts += `<option value="${u.id}" ${u.id == selectedId ? 'selected' : ''}>${u.name} (${u.email})</option>`;
         });
         $('#branch-manager').html(opts);
-    }).fail(() => {
-        // Nếu không có API, load qua Ajax đơn giản
-        $.get('{{ url("/chi-nhanh/managers") }}', function(data) {
-            let opts = '<option value="">-- Chọn quản lý --</option>';
-            data.forEach(u => {
-                opts += `<option value="${u.id}" ${u.id == selectedId ? 'selected' : ''}>${u.name}</option>`;
-            });
-            $('#branch-manager').html(opts);
-        });
     });
 }
 
-// Load users trực tiếp từ bảng users
-$.get('{{ url("/chi-nhanh/managers") }}', function(data) {
-    let opts = '<option value="">-- Chọn quản lý --</option>';
-    (data || []).forEach(u => {
-        opts += `<option value="${u.id}">${u.name}${u.email ? ' ('+u.email+')' : ''}</option>`;
-    });
-    $('#branch-manager').html(opts);
-});
+// Load users khi vừa mở trang
+loadManagers();
 
 // ===== THÊM MỚI =====
 $('#btn-add-branch').click(function() {
@@ -248,7 +233,7 @@ $('#btn-add-branch').click(function() {
 // ===== SỬA =====
 window.openEdit = function(id) {
     $('#modal-title-branch').html('<i class="fas fa-edit mr-2"></i>Cập nhật chi nhánh');
-    $.get('/chi-nhanh/get/' + id, function(res) {
+    $.get('{{ route("branches.list") }}/get/' + id, function(res) {
         $('#branch-id').val(res.id);
         $('#branch-name').val(res.name);
         $('#branch-phone').val(res.phone);
@@ -262,7 +247,7 @@ window.openEdit = function(id) {
 // ===== LƯU =====
 $('#btn-save-branch').click(function() {
     const id   = $('#branch-id').val();
-    const url  = id ? '/chi-nhanh/update/' + id : '/chi-nhanh/store';
+    const url  = id ? '{{ route("branches.list") }}/update/' + id : '{{ route("branches.store") }}';
     const data = {
         name:       $('#branch-name').val().trim(),
         phone:      $('#branch-phone').val().trim(),

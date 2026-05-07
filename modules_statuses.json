@@ -3,5 +3,8 @@
     "NhapHang": true,
     "BanHang": true,
     "NhanSu": true,
-    "TuyenDung": true
+    "TuyenDung": true,
+    "CoCheLuong": true,
+    "TaiChinh": true,
+    "QuanLyChiTieu": true
 }

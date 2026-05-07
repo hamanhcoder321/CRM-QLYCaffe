@@ -1,0 +1,11 @@
+{
+    "name": "CoCheLuong",
+    "alias": "cocheluong",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\CoCheLuong\\Providers\\CoCheLuongServiceProvider"
+    ],
+    "files": []
+}

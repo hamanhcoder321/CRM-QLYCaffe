@@ -20,7 +20,7 @@ class TuyenDungController extends Controller
     public function create()
     {
         $parts = Part::orderBy('name')->get();
-        $positions = Position::orderBy('name')->get();
+        $positions = Position::where('name', 'not like', '%Giám đốc%')->orderBy('name')->get();
 
         return view('tuyendung::TuyenDung.create', compact('parts', 'positions'));
     }
@@ -47,6 +47,48 @@ class TuyenDungController extends Controller
         Recruitment::create($data);
 
         return redirect()->route('tuyendung.list')->with('success', 'Đã tạo post tuyển dụng thành công');
+    }
+
+    public function edit($id)
+    {
+        $recruitment = Recruitment::findOrFail($id);
+        $parts = Part::orderBy('name')->get();
+        $positions = Position::where('name', 'not like', '%Giám đốc%')->orderBy('name')->get();
+
+        return view('tuyendung::TuyenDung.edit', compact('recruitment', 'parts', 'positions'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $recruitment = Recruitment::findOrFail($id);
+
+        $data = $request->validate([
+            'part_id' => ['required', 'integer', 'exists:parts,id'],
+            'position_id' => ['required', 'integer', 'exists:positions,id'],
+            'number' => ['required', 'integer', 'min:1'],
+            'prioritize' => ['required', 'integer', 'in:0,1,2'],
+            'deadline' => ['nullable', 'date'],
+            'social' => ['nullable', 'string', 'max:255'],
+            'obstacle' => ['nullable', 'string', 'max:255'],
+            'solution' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', 'integer', 'in:0,1,2'],
+            'result' => ['nullable', 'integer', 'in:0,1'],
+        ]);
+
+        $data['status'] = $data['status'] ?? 0;
+        $data['result'] = $data['result'] ?? 0;
+
+        $recruitment->update($data);
+
+        return redirect()->route('tuyendung.list')->with('success', 'Đã cập nhật post tuyển dụng thành công');
+    }
+
+    public function destroy($id)
+    {
+        $recruitment = Recruitment::findOrFail($id);
+        $recruitment->delete();
+
+        return redirect()->route('tuyendung.list')->with('success', 'Đã xóa post tuyển dụng thành công');
     }
 
     public function data(Request $request)
@@ -84,7 +126,16 @@ class TuyenDungController extends Controller
                 };
             })
             ->editColumn('deadline', fn ($r) => $r->deadline ? date('d/m/Y H:i', strtotime($r->deadline)) : '—')
-            ->addColumn('action', fn ($r) => '<a class="btn btn-sm btn-primary" href="' . route('tuyendung.create') . '">Tạo mới</a>')
+            ->addColumn('action', function ($r) {
+                $editUrl = route('tuyendung.edit', $r->id);
+                $deleteUrl = route('tuyendung.destroy', $r->id);
+                return '<a class="btn btn-sm btn-info" href="' . $editUrl . '"><i class="fas fa-edit"></i></a>
+                        <form action="' . $deleteUrl . '" method="POST" class="d-inline" onsubmit="return confirm(\'Bạn có chắc chắn muốn xóa?\');">
+                            ' . csrf_field() . '
+                            ' . method_field('DELETE') . '
+                            <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                        </form>';
+            })
             ->rawColumns(['prioritize', 'status', 'result', 'action'])
             ->make(true);
     }

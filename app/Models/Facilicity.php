@@ -10,6 +10,7 @@ class Facilicity extends Model
 
     protected $fillable = [
         'name',
+        'image',
         'number',
         'description',
         'status',

@@ -13,10 +13,12 @@ class ListRecruitment extends Model
         'day',
         'name',
         'phone',
+        'email',
         'birthday',
         'interview',
         'user_id',
         'result',
+        'status',
         'day_work',
         'note',
     ];

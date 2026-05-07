@@ -48,6 +48,7 @@
                                 <th>Người tạo</th>
                                 <th>Trạng thái</th>
                                 <th>Kết quả</th>
+                                <th>Hành động</th>
                             </tr>
                             </thead>
                             <tbody></tbody>
@@ -77,7 +78,8 @@
                 { data: 'deadline', name: 'deadline' },
                 { data: 'user_name', name: 'user_name' },
                 { data: 'status', name: 'status', orderable: false, searchable: false },
-                { data: 'result', name: 'result', orderable: false, searchable: false }
+                { data: 'result', name: 'result', orderable: false, searchable: false },
+                { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/2.3.7/i18n/vi.json'

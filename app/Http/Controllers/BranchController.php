@@ -17,7 +17,9 @@ class BranchController extends Controller
     {
         if (!$request->ajax()) return;
 
-        $query = Branch::with('manager')->withCount('users')->orderBy('created_at', 'desc');
+        $query = Branch::with('manager')->withCount(['users' => function ($query) {
+            $query->where('status', 0);
+        }])->orderBy('created_at', 'desc');
 
         return DataTables::of($query)
             ->addIndexColumn()
@@ -44,10 +46,20 @@ class BranchController extends Controller
 
     public function getManagers()
     {
-        $users = \App\Models\User::select('id', 'name', 'email')
-            ->where('status', 0)
+        $users = \App\Models\User::where('status', 0)
+            ->where(function ($q) {
+                $q->whereHas('typeAccount', function ($sub) {
+                    $sub->where('name', 'Admin')
+                        ->orWhere('name', 'Super Admin');
+                })->orWhereHas('position', function ($sub) {
+                    $sub->where('name', 'Giám đốc')
+                        ->orWhere('name', 'Quản lý chi nhánh');
+                });
+            })
+            ->select('id', 'name', 'email')
             ->orderBy('name')
             ->get();
+
         return response()->json($users);
     }
 

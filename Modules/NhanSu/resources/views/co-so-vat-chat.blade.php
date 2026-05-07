@@ -14,7 +14,7 @@
             <li class="breadcrumb-item"><a href="#">Nhân sự</a></li>
             <li class="breadcrumb-item active">Cơ sở vật chất</li>
           </ol>
-          <button class="btn btn-primary btn-sm pl-3 pr-3" data-toggle="modal" data-target="#facilityModal">
+          <button class="btn btn-primary btn-sm pl-3 pr-3" onclick="openAddModal()">
             <i class="fas fa-plus mr-1"></i>Thêm tài sản
           </button>
         </div>
@@ -99,8 +99,12 @@
                 </td>
                 <td>{{ \Carbon\Carbon::parse($fac->day)->format('d/m/Y') }}</td>
                 <td class="text-center">
-                  <button class="btn btn-sm btn-outline-info"><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                  <button class="btn btn-sm btn-outline-info" onclick="editFacility({{ $fac->id }})"><i class="fas fa-edit"></i></button>
+                  <form action="{{ route('nhansu.facilities.delete', $fac->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xoá tài sản này?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                  </form>
                 </td>
               </tr>
               @empty
@@ -125,6 +129,7 @@
         <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">
+        <input type="hidden" id="fac-id" value="">
         <div class="form-group text-center">
             <label for="fac-image" style="cursor: pointer;">
                 <div id="image-preview" style="width: 120px; height: 120px; border: 2px dashed #ccc; border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: #f8f9fa; overflow: hidden; position: relative;">
@@ -198,6 +203,37 @@ $(document).ready(function() {
         }
     });
 
+    window.openAddModal = function() {
+        $('.modal-title').html('<i class="fas fa-plus-circle mr-2"></i>Thêm Cơ Sở Vật Chất');
+        $('#fac-id').val('');
+        $('#fac-name').val('');
+        $('#fac-number').val('1');
+        $('#fac-day').val('{{ date('Y-m-d') }}');
+        $('#fac-note').val('');
+        $('#fac-image').val('');
+        $('#image-preview').html('<i class="fas fa-camera text-muted fa-2x"></i>');
+        $('#facilityModal').modal('show');
+    };
+
+    window.editFacility = function(id) {
+        $('.modal-title').html('<i class="fas fa-edit mr-2"></i>Cập nhật Cơ Sở Vật Chất');
+        $.get('{{ route("nhansu.facilities.get", "PLACEHOLDER") }}'.replace('PLACEHOLDER', id), function(res) {
+            $('#fac-id').val(res.id);
+            $('#fac-name').val(res.name);
+            $('#fac-type').val(res.description);
+            $('#fac-number').val(res.number);
+            $('#fac-status').val(res.status);
+            $('#fac-day').val(res.day ? res.day.split(' ')[0] : '');
+            $('#fac-note').val(res.note);
+            if (res.image) {
+                $('#image-preview').html(`<img src="/storage/${res.image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`);
+            } else {
+                $('#image-preview').html('<i class="fas fa-camera text-muted fa-2x"></i>');
+            }
+            $('#facilityModal').modal('show');
+        });
+    };
+
     $('#btn-save-fac').click(function() {
         const name = $('#fac-name').val().trim();
         if(!name) {
@@ -218,10 +254,13 @@ $(document).ready(function() {
             formData.append('image', imageFile);
         }
 
+        const id = $('#fac-id').val();
+        const url = id ? '{{ route("nhansu.facilities.update", "PLACEHOLDER") }}'.replace('PLACEHOLDER', id) : '{{ route("nhansu.facilities.store") }}';
+
         $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Đang lưu...');
 
         $.ajax({
-            url: '{{ route("nhansu.facilities.store") }}',
+            url: url,
             type: 'POST',
             data: formData,
             contentType: false,

@@ -31,6 +31,9 @@
             "Modules\\BanHang\\": "Modules/BanHang/app/",
             "Modules\\TuyenDung\\": "Modules/TuyenDung/app/",
             "Modules\\NhanSu\\": "Modules/NhanSu/app/",
+            "Modules\\CoCheLuong\\": "Modules/CoCheLuong/app/",
+            "Modules\\TaiChinh\\": "Modules/TaiChinh/app/",
+            "Modules\\QuanLyChiTieu\\": "Modules/QuanLyChiTieu/app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

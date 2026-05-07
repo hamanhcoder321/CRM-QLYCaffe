@@ -11,6 +11,12 @@ class Timesheet extends Model
         'day',
         'number',
         'hour',
+        'shift',
+        'note',
+    ];
+
+    protected $casts = [
+        'day' => 'date',
     ];
 
     public function user()

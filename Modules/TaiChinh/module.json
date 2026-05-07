@@ -1,0 +1,12 @@
+{
+    "name": "TaiChinh",
+    "alias": "taichinh",
+    "description": "Quản lý tài chính, bảng quyết toán và chi phí.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\TaiChinh\\Providers\\TaiChinhServiceProvider",
+        "Modules\\TaiChinh\\Providers\\RouteServiceProvider"
+    ],
+    "files": []
+}

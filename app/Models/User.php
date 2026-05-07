@@ -127,6 +127,29 @@ class User extends Authenticatable
         return strtolower($this->getAccountTypeName()) === 'admin' || strtolower($this->getPositionName()) === 'quản lý chi nhánh';
     }
 
+    /** Kiểm tra xem có phải là cấp nhận lương cứng (Quản lý/Giám đốc) hay không */
+    public function isManagerSalary(): bool
+    {
+        $position = strtolower($this->getPositionName());
+        return str_contains($position, 'quản lý') || str_contains($position, 'giám đốc');
+    }
+
+    /** Scope lọc Quản lý/Giám đốc */
+    public function scopeManagers($query)
+    {
+        return $query->whereHas('position', function($q) {
+            $q->where('name', 'like', '%Quản lý%')->orWhere('name', 'like', '%Giám đốc%');
+        });
+    }
+
+    /** Scope lọc Nhân viên thường */
+    public function scopeStaff($query)
+    {
+        return $query->whereDoesntHave('position', function($q) {
+            $q->where('name', 'like', '%Quản lý%')->orWhere('name', 'like', '%Giám đốc%');
+        });
+    }
+
     /** Tự động cho phép Super Admin hoặc Admin */
     public function isSuperAdminOrAdmin(): bool
     {

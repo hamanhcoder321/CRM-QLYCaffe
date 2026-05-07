@@ -1,0 +1,12 @@
+{
+    "name": "QuanLyChiTieu",
+    "alias": "quanlychitieu",
+    "description": "Quản lý chi phí phát sinh hàng ngày.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\QuanLyChiTieu\\Providers\\QuanLyChiTieuServiceProvider",
+        "Modules\\QuanLyChiTieu\\Providers\\RouteServiceProvider"
+    ],
+    "files": []
+}
