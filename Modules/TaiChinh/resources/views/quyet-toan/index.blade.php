@@ -116,7 +116,7 @@
                                             @if($s && $s->total_hours > 0)
                                                 <div class="mt-1">
                                                     <a href="javascript:void(0)" class="text-xs text-primary" onclick="viewWorkDetail({{ $user->id }}, '{{ $user->name }}')">
-                                                        <i class="fas fa-search-plus"></i> Chi tiết
+                                                         Chi tiết
                                                     </a>
                                                 </div>
                                             @endif

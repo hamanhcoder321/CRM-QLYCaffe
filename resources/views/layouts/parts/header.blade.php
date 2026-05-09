@@ -41,6 +41,35 @@
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
+      @if(auth()->check() && auth()->user()->isSuperAdmin())
+      <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-primary font-weight-bold" data-toggle="dropdown" href="#" aria-expanded="false">
+              <i class="fas fa-store mr-1"></i>
+              {{ session('selected_branch_name') ?? 'Tất cả chi nhánh' }}
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px;">
+              <span class="dropdown-header">Chọn chi nhánh xem dữ liệu</span>
+              <div class="dropdown-divider"></div>
+              <a href="{{ route('branches.select', ['branch_id' => 'all']) }}" class="dropdown-item {{ !session()->has('selected_branch_id') ? 'active' : '' }}">
+                  <i class="fas fa-globe mr-2"></i> Tất cả chi nhánh
+              </a>
+              @foreach(\App\Models\Branch::where('status', 0)->get() as $branch)
+                  <div class="dropdown-divider"></div>
+                  <a href="{{ route('branches.select', ['branch_id' => $branch->id]) }}" class="dropdown-item {{ session('selected_branch_id') == $branch->id ? 'active' : '' }}">
+                      <i class="fas fa-store mr-2"></i> {{ $branch->name }}
+                  </a>
+              @endforeach
+          </div>
+      </li>
+      @else
+      <li class="nav-item">
+          <span class="nav-link text-muted font-weight-bold">
+              <i class="fas fa-map-marker-alt mr-1"></i>
+              {{ auth()->user()->branch?->name ?? 'Dữ liệu chung' }}
+          </span>
+      </li>
+      @endif
+
       <!-- Navbar Search -->
       <li class="nav-item">
         <a class="nav-link" data-widget="navbar-search" href="#" role="button">

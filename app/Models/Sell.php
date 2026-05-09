@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class Sell extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'shipment_id',
         'branch_id',
@@ -26,11 +29,6 @@ class Sell extends Model
         return $this->belongsTo(Shipment::class, 'shipment_id');
     }
 
-    /** Chi nhánh của đơn bán */
-    public function branch()
-    {
-        return $this->belongsTo(Branch::class, 'branch_id');
-    }
 
     /** Danh sách sản phẩm trong đơn bán */
     public function sellProducts()

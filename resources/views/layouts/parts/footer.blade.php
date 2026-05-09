@@ -22,6 +22,28 @@
 @stack('scripts')
 <!-- cdn sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Truy cập bị từ chối!',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Đã hiểu'
+        });
+    @endif
+    
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    @endif
+</script>
 
+@include('AI::partials.chat-bubble')
 </body>
 </html>

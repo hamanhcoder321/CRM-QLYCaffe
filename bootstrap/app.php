@@ -9,6 +9,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
         \Modules\NhapHang\Providers\NhapHangServiceProvider::class,
         \Modules\BanHang\Providers\BanHangServiceProvider::class,
+        \App\Modules\AI\Providers\ChatAIServiceProvider::class,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -17,6 +18,16 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/auth.php'));
+
+            // Load routes for legacy modules that don't have a ServiceProvider
+            if (file_exists(base_path('Modules/Payment/routes/web.php'))) {
+                Route::middleware('web')
+                    ->group(base_path('Modules/Payment/routes/web.php'));
+            }
+            if (file_exists(base_path('Modules/Affilate/Routes/web.php'))) {
+                Route::middleware('web')
+                    ->group(base_path('Modules/Affilate/Routes/web.php'));
+            }
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

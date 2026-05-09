@@ -129,7 +129,8 @@
             <select id="sell-payment-method" class="form-control">
               <option value="">-- Chọn hình thức --</option>
               <option value="cash">Tiền mặt</option>
-              <option value="transfer">Chuyển khoản</option>
+              <!-- <option value="transfer">Chuyển khoản</option> -->
+              <option value="payos">Thanh toán PayOS (QR)</option>
             </select>
           </div>
           <div class="col-md-4" id="customer-paid-container">
@@ -142,15 +143,15 @@
           <div class="col-12">
             <div class="card card-outline card-info">
               <div class="card-body d-flex flex-column flex-md-row align-items-center gap-3">
-                <div class="qr-preview">
+                <!-- <div class="qr-preview">
                   <img id="payment-qr" src="" alt="QR chuyển khoản" style="max-width:180px; width:100%; height:auto;" />
-                </div>
-                <div>
+                </div> -->
+                <!-- <div>
                   <h6 class="font-weight-bold mb-2">Quét mã chuyển khoản</h6>
                   <div class="mb-1"><strong>Số tiền:</strong> <span id="qr-amount-label">0 đ</span></div>
                   <div class="mb-1"><strong>STK:</strong> 0123456789</div>
                   <div><strong>Ngân hàng:</strong> ACB</div>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -346,7 +347,7 @@ function updatePaymentSummary() {
     const methodStr = methodEl.val() ? methodEl.text() : '—';
     const methodValue = methodEl.val();
     
-    if (methodValue === 'transfer') {
+    if (methodValue === 'transfer' || methodValue === 'payos') {
         $('#customer-paid-container').hide();
     } else {
         $('#customer-paid-container').show();
@@ -552,6 +553,53 @@ $('#btn-save-sell').click(function() {
         note: $('#sell-note').val(),
         items: items
     };
+
+    if (methodVal === 'payos') {
+        const grand = parseInt($('#grand-total').text().replace(/\D/g,'')) || 0;
+        if (grand <= 0) { Swal.fire('Lỗi', 'Vui lòng thêm sản phẩm trước khi thanh toán PayOS!', 'error'); return; }
+
+        Swal.fire({
+            title: 'Đang khởi tạo thanh toán PayOS...',
+            text: 'Vui lòng chờ trong giây lát',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        // Gửi AJAX tới BanHang PayOS route (ĐÚNG route)
+        $.ajax({
+            url: '{{ route("banhang.giao-dich.payos.tao-link") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                so_tien: grand,
+                sell_day: $('#sell-day').val(),
+                payment_method: 'payos',
+                name: $('#sell-name').val(),
+                status: $('#sell-status').val(),
+                note: $('#sell-note').val(),
+                items: items,
+            },
+            traditional: false,
+        })
+        .done(function(res) {
+            if (res.success && res.checkout_url) {
+                // Redirect sang trang thanh toán PayOS
+                window.location.href = res.checkout_url;
+            } else {
+                Swal.fire('Lỗi', res.message || 'Không tạo được link PayOS!', 'error');
+            }
+        })
+        .fail(function(xhr) {
+            const err = xhr.responseJSON?.errors || xhr.responseJSON?.message;
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi tạo link PayOS',
+                html: typeof err === 'object' ? Object.values(err).flat().join('<br>') : (err || 'Lỗi không xác định!')
+            });
+        });
+        return;
+    }
+
 
     const url = window.currentEditSellId 
         ? '/ban-hang/giao-dich/update/' + window.currentEditSellId

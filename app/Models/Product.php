@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class Product extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'shipment_id',
+        'branch_id',
         'name',
         'image',
         'number_in',

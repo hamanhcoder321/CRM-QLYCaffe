@@ -178,8 +178,7 @@
         </li>
         @endif
 
-        {{-- NHÂN SỰ - HR/Admin/Quản lý --}}
-        @if($canHR)
+        {{-- NHÂN SỰ - HR/Admin/Quản lý & Chấm công cho tất cả --}}
         <li class="nav-item {{ $isHr ? 'menu-open' : '' }}">
           <a href="#" class="nav-link {{ $isHr ? 'active' : '' }}">
             <i class="nav-icon fas fa-users-cog"></i>
@@ -189,6 +188,7 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
+            @if($canHR)
             <li class="nav-item">
               <a href="{{ route('tuyendung.list') }}" class="nav-link {{ request()->is('tuyen-dung') || (request()->is('tuyen-dung/*') && !request()->is('tuyen-dung/applications*')) ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
@@ -207,6 +207,7 @@
                 <p>Cơ sở vật chất</p>
               </a>
             </li>
+            @endif
             <li class="nav-item">
               <a href="{{ route('nhansu.cham-cong') }}" class="nav-link {{ request()->is('*cham-cong*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
@@ -215,7 +216,6 @@
             </li>
           </ul>
         </li>
-        @endif
 
         {{-- HỆ THỐNG - chỉ Admin/Quản lý --}}
         @if($isAdminOrMgr)

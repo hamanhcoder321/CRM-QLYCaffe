@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class Timesheet extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'user_id',
+        'branch_id',
         'day',
         'number',
         'hour',

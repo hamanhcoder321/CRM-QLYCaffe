@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class Arrange extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'day',
         'name_arrange',
@@ -55,11 +58,6 @@ class Arrange extends Model
         return $this->belongsTo(Team::class, 'team_id');
     }
 
-    /** Chi nhánh của lô hàng */
-    public function branch()
-    {
-        return $this->belongsTo(Branch::class, 'branch_id');
-    }
 
     /** Danh sách lô hàng giao */
     public function shipments()

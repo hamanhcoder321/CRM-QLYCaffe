@@ -56,7 +56,7 @@ class BanHangRepository implements BanHangRepositoryInterface
         return DB::transaction(function () use ($data, $items) {
             // 1. Tạo đơn bán
             $sell = Sell::create([
-                'shipment_id'      => $data['shipment_id'] ?? null,
+                'branch_id'        => auth()->user()?->branch_id ?? null,
                 'name'             => $data['name'] ?? null,
                 'status'           => $data['status'] ?? 0,
                 'storage'          => $data['storage'] ?? 0,
@@ -169,7 +169,6 @@ class BanHangRepository implements BanHangRepositoryInterface
 
             // 2. Cập nhật thông tin đơn bán
             $sell->update([
-                'shipment_id'      => $data['shipment_id'] ?? null,
                 'name'             => $data['name'] ?? null,
                 'status'           => $data['status'] ?? 0,
                 'storage'          => $data['storage'] ?? 0,

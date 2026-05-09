@@ -105,4 +105,20 @@ class BranchController extends Controller
         $branch->delete();
         return redirect()->route('branches.list')->with('success', 'Xóa chi nhánh thành công!');
     }
+
+    public function selectBranch(Request $request)
+    {
+        $branchId = $request->get('branch_id');
+        if ($branchId === 'all') {
+            session()->forget('selected_branch_id');
+            session()->forget('selected_branch_name');
+        } else {
+            $branch = Branch::find($branchId);
+            if ($branch) {
+                session(['selected_branch_id' => $branch->id]);
+                session(['selected_branch_name' => $branch->name]);
+            }
+        }
+        return back()->with('success', 'Đã chuyển sang chi nhánh: ' . (session('selected_branch_name') ?? 'Tất cả'));
+    }
 }

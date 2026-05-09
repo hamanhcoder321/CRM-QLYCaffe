@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class TotalFee extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'day',
         'content',
@@ -27,9 +30,4 @@ class TotalFee extends Model
         return $this->belongsTo(Atm::class, 'atm_id');
     }
 
-    /** Chi nhánh phát sinh chi phí */
-    public function branch()
-    {
-        return $this->belongsTo(Branch::class, 'branch_id');
-    }
 }

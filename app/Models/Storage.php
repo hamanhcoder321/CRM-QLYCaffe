@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class Storage extends Model
 {
+    use BelongsToBranch;
+
     protected $fillable = [
         'shipment_id',
         'branch_id',
@@ -18,9 +21,4 @@ class Storage extends Model
         return $this->belongsTo(Shipment::class, 'shipment_id');
     }
 
-    /** Chi nhánh của kho */
-    public function branch()
-    {
-        return $this->belongsTo(Branch::class, 'branch_id');
-    }
 }

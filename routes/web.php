@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/store', [BranchController::class, 'store'])->name('store');
         Route::post('/update/{branch}', [BranchController::class, 'update'])->name('update');
         Route::delete('/delete/{branch}', [BranchController::class, 'destroy'])->name('delete');
+        Route::get('/select', [BranchController::class, 'selectBranch'])->name('select');
     });
 });
 

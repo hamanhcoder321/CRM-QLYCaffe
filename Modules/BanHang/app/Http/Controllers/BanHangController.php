@@ -347,7 +347,6 @@ class BanHangController extends Controller
     {
         $data = $request->validate([
             'name'            => ['nullable', 'string', 'max:255'],
-            'shipment_id'     => ['nullable', 'integer'],
             'status'          => ['required', 'integer'],
             'sell_day'        => ['required', 'date'],
             'payment_method'  => ['nullable', 'string', 'max:50'],
@@ -371,7 +370,6 @@ class BanHangController extends Controller
     {
         $data = $request->validate([
             'name'            => ['nullable', 'string', 'max:255'],
-            'shipment_id'     => ['nullable', 'integer'],
             'status'          => ['required', 'integer'],
             'sell_day'        => ['required', 'date'],
             'payment_method'  => ['nullable', 'string', 'max:50'],
@@ -400,5 +398,169 @@ class BanHangController extends Controller
     {
         $this->repo->deleteSell($sell->id);
         return response()->json(['success' => true, 'message' => 'Đã xóa giao dịch!']);
+    }
+
+    /**
+     * Tạo link thanh toán PayOS cho giao dịch BanHang.
+     * POST /ban-hang/giao-dich/payos/tao-link
+     */
+    public function payosTaoLink(Request $request)
+    {
+        $data = $request->validate([
+            'so_tien'        => ['required', 'integer', 'min:1000'],
+            'sell_day'       => ['required', 'date'],
+            'payment_method' => ['nullable', 'string'],
+            'name'           => ['nullable', 'string', 'max:255'],
+            'note'           => ['nullable', 'string', 'max:255'],
+            'status'         => ['nullable', 'integer'],
+            'items'          => ['required', 'array', 'min:1'],
+            'items.*.drink_id'    => ['required', 'integer', 'exists:drinks,id'],
+            'items.*.number_sell' => ['required', 'integer', 'min:1'],
+            'items.*.price_sell'  => ['required', 'integer', 'min:0'],
+            'items.*.note'        => ['nullable', 'string'],
+        ]);
+
+        $amount    = (int) $data['so_tien'];
+        $orderCode = intval(substr(strval(microtime(true) * 10000), -9));
+        $domain    = $request->getSchemeAndHttpHost();
+        $user      = auth()->user();
+
+        // Lưu session để tạo Sell sau callback
+        session()->put('banhang_payos_data', [
+            'sell_day'       => $data['sell_day'],
+            'payment_method' => $data['payment_method'] ?? 'payos',
+            'items'          => $data['items'],
+            'so_tien'        => $amount,
+            'order_code'     => $orderCode,
+            'name'           => $data['name'] ?? null,
+            'note'           => $data['note'] ?? null,
+            'status'         => $data['status'] ?? 1,
+        ]);
+
+        // Lưu lịch sử thanh toán (pending)
+        \App\Modules\Payment\Models\LichSuNapTienPayos::create([
+            'admin_id'   => $user?->id,
+            'ma_don'     => (string) $orderCode,
+            'loai_don'   => 'ban_hang',
+            'so_tien'    => $amount,
+            'status'     => 'pending',
+            'trang_thai' => 'Cho thanh toan',
+            'description'=> 'BanHang#' . $orderCode,
+            'cancel'     => 0,
+        ]);
+
+        // Gọi PayOS API
+        $clientId    = env('PAYOS_CLIENT_ID');
+        $apiKey      = env('PAYOS_API_KEY');
+        $checksumKey = env('PAYOS_CHECKSUM_KEY');
+
+        $description = 'BanHang' . $orderCode; // tối đa 25 ký tự ASCII
+        $returnUrl   = $domain . '/ban-hang/payos/success?orderCode=' . $orderCode;
+        $cancelUrl   = $domain . '/ban-hang/payos/cancel?orderCode=' . $orderCode;
+
+        $payload = [
+            'orderCode'   => $orderCode,
+            'amount'      => $amount,
+            'description' => $description,
+            'returnUrl'   => $returnUrl,
+            'cancelUrl'   => $cancelUrl,
+            'items'       => [['name' => 'Giao dich #' . $orderCode, 'quantity' => 1, 'price' => $amount]],
+        ];
+
+        // Tạo chữ ký HMAC-SHA256
+        $dataStr = 'amount=' . $amount
+            . '&cancelUrl=' . $cancelUrl
+            . '&description=' . $description
+            . '&orderCode=' . $orderCode
+            . '&returnUrl=' . $returnUrl;
+        $payload['signature'] = hash_hmac('sha256', $dataStr, $checksumKey);
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => 'https://api-merchant.payos.vn/v2/payment-requests',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                'x-client-id: ' . $clientId,
+                'x-api-key: ' . $apiKey,
+                'Content-Type: application/json',
+            ],
+        ]);
+        $response = curl_exec($curl);
+        curl_close($curl);
+        $result = json_decode($response, true);
+
+        if (isset($result['code']) && $result['code'] == '00' && !empty($result['data']['checkoutUrl'])) {
+            // Cập nhật link vào lịch sử
+            \App\Modules\Payment\Models\LichSuNapTienPayos::where('ma_don', $orderCode)->update([
+                'link'          => $result['data']['checkoutUrl'],
+                'paymentLinkId' => $result['data']['paymentLinkId'] ?? null,
+                'checkoutUrl'   => $result['data']['checkoutUrl'],
+            ]);
+            return response()->json(['success' => true, 'checkout_url' => $result['data']['checkoutUrl']]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Không tạo được link thanh toán: ' . ($result['desc'] ?? 'Lỗi không rõ'),
+        ], 422);
+    }
+
+    /**
+     * PayOS redirect về sau khi thanh toán thành công.
+     * GET /ban-hang/payos/success?orderCode=...
+     */
+    public function payosSuccess(Request $request)
+    {
+        $orderCode = $request->get('orderCode');
+        $payment   = \App\Modules\Payment\Models\LichSuNapTienPayos::where('ma_don', $orderCode)->first();
+
+        if ($payment && $payment->trang_thai !== 'Da thanh toan') {
+            $payment->update(['status' => 'paid', 'trang_thai' => 'Da thanh toan']);
+        }
+
+        // Lấy dữ liệu từ session để tạo Sell
+        $sessionData = session()->get('banhang_payos_data');
+
+        if ($sessionData && isset($sessionData['items'])) {
+            try {
+                $sellData = [
+                    'sell_day'       => $sessionData['sell_day'] ?? now()->format('Y-m-d'),
+                    'payment_method' => $sessionData['payment_method'] ?? 'payos',
+                    'status'         => $sessionData['status'] ?? 1, // Đã bán
+                    'paid_amount'    => $sessionData['so_tien'] ?? 0,
+                    'name'           => $sessionData['name'] ?? ('Thanh toán PayOS #' . $orderCode),
+                    'note'           => $sessionData['note'] ?? null,
+                ];
+                $sell = $this->repo->storeSell($sellData, $sessionData['items']);
+
+                // Liên kết lịch sử PayOS với Sell vừa tạo
+                if ($payment) {
+                    $payment->update(['sell_id' => $sell->id]);
+                }
+
+                session()->forget('banhang_payos_data');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('BanHang PayOS success error: ' . $e->getMessage());
+                return redirect()->route('banhang.giao-dich')->with('error', 'Thanh toán thành công nhưng lỗi tạo giao dịch: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('banhang.giao-dich')->with('success', 'Thanh toán PayOS thành công! Giao dịch đã được ghi nhận.');
+    }
+
+    /**
+     * Hủy thanh toán PayOS.
+     * GET /ban-hang/payos/cancel?orderCode=...
+     */
+    public function payosCancel(Request $request)
+    {
+        $orderCode = $request->get('orderCode');
+        \App\Modules\Payment\Models\LichSuNapTienPayos::where('ma_don', $orderCode)
+            ->update(['status' => 'cancel', 'trang_thai' => 'Da huy', 'cancel' => 1]);
+
+        session()->forget('banhang_payos_data');
+        return redirect()->route('banhang.giao-dich')->with('error', 'Bạn đã hủy thanh toán PayOS.');
     }
 }

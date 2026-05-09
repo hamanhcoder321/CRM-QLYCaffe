@@ -34,5 +34,13 @@ Route::middleware(['auth', 'role:sales'])->group(function () {
         Route::post('/giao-dich/store',       [BanHangController::class, 'giaoDichStore'])->name('giao-dich.store');
         Route::post('/giao-dich/update/{sell}', [BanHangController::class, 'giaoDichUpdate'])->name('giao-dich.update');
         Route::delete('/giao-dich/delete/{sell}', [BanHangController::class, 'giaoDichDelete'])->name('giao-dich.delete');
+
+        // PayOS thanh toán cho BanHang
+        Route::post('/giao-dich/payos/tao-link',    [BanHangController::class, 'payosTaoLink'])->name('giao-dich.payos.tao-link');
     });
 });
+
+// Callback PayOS cho BanHang (không cần auth)
+Route::get('/ban-hang/payos/success', [BanHangController::class, 'payosSuccess'])->name('banhang.payos.success');
+Route::get('/ban-hang/payos/cancel',  [BanHangController::class, 'payosCancel'])->name('banhang.payos.cancel');
+

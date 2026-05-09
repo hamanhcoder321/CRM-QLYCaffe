@@ -5,12 +5,18 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Traits\BelongsToBranch;
+
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes, BelongsToBranch;
+
+
 
     /**
      * The attributes that are mass assignable.
@@ -66,11 +72,6 @@ class User extends Authenticatable
         return $this->belongsTo(Type_account::class, 'type_accounts_id');
     }
 
-    /** Chi nhánh của nhân viên */
-    public function branch()
-    {
-        return $this->belongsTo(Branch::class, 'branch_id');
-    }
 
 
     /**
@@ -163,12 +164,15 @@ class User extends Authenticatable
         return str_contains(strtolower($this->getPartName()), 'kho');
     }
 
-    /** Nhân viên bán hàng */
+    /** Nhân viên bán hàng (Bao gồm Bán hàng, Pha chế, Phục vụ) */
     public function canAccessSales(): bool
     {
         if ($this->isSuperAdminOrAdmin()) return true;
         $part = strtolower($this->getPartName());
-        return str_contains($part, 'bán hàng') || str_contains($part, 'sale');
+        return str_contains($part, 'bán hàng') || 
+               str_contains($part, 'sale') || 
+               str_contains($part, 'pha chế') || 
+               str_contains($part, 'phục vụ');
     }
 
     /** Nhân viên pha chế */

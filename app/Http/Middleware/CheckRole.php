@@ -34,7 +34,7 @@ class CheckRole
         };
 
         if (!$allowed) {
-            abort(403, 'Bạn không có quyền truy cập trang này.');
+            return redirect()->back()->with('error', 'Bạn không có quyền truy cập chức năng này.');
         }
 
         return $next($request);
