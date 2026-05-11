@@ -280,3 +280,44 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeAccountSelect = document.getElementById('type_account');
+        
+        // Ensure elements exist before proceeding
+        const partSelect = document.getElementById('part');
+        const teamSelect = document.getElementById('team');
+        const typeWorkSelect = document.getElementById('type_work');
+        
+        if (!typeAccountSelect || !partSelect || !teamSelect || !typeWorkSelect) return;
+
+        const partGroup = partSelect.closest('.form-group');
+        const teamGroup = teamSelect.closest('.form-group');
+        const typeWorkGroup = typeWorkSelect.closest('.form-group');
+        
+        function toggleFields() {
+            const selectedText = typeAccountSelect.options[typeAccountSelect.selectedIndex]?.text.toLowerCase() || '';
+            const isAdminOrSuperAdmin = selectedText.includes('admin') || selectedText.includes('super admin') || selectedText.includes('giám đốc');
+            
+            if (isAdminOrSuperAdmin) {
+                partGroup.style.display = 'none';
+                teamGroup.style.display = 'none';
+                typeWorkGroup.style.display = 'none';
+                
+                partSelect.value = '';
+                teamSelect.value = '';
+                typeWorkSelect.value = '';
+            } else {
+                partGroup.style.display = 'block';
+                teamGroup.style.display = 'block';
+                typeWorkGroup.style.display = 'block';
+            }
+        }
+
+        typeAccountSelect.addEventListener('change', toggleFields);
+        
+        // Chạy lần đầu khi load trang
+        toggleFields();
+    });
+</script>

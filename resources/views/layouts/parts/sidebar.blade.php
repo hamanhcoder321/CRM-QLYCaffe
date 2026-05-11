@@ -76,12 +76,14 @@
       <ul class="nav nav-pills nav-sidebar flex-column text-sm" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-header text-uppercase">Điều hướng</li>
 
+        @if($isAdminOrMgr)
         <li class="nav-item">
           <a href="/dashboard" class="nav-link {{ $isDashboard ? 'active' : '' }}">
             <i class="nav-icon fas fa-chart-line"></i>
             <p>Tổng quan</p>
           </a>
         </li>
+        @endif
 
         <li class="nav-header text-uppercase">Nghiệp vụ</li>
 
@@ -237,12 +239,14 @@
             </p>
           </a>
           <ul class="nav nav-treeview">
+            @if($user?->isSuperAdmin())
             <li class="nav-item">
               <a href="{{ route('cocheluong.index') }}" class="nav-link {{ request()->is('salary-mechanism*') ? 'active' : '' }}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Cơ chế lương</p>
               </a>
             </li>
+            @endif
           </ul>
         </li>
 

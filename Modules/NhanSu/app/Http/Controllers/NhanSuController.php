@@ -104,8 +104,9 @@ class NhanSuController extends Controller
     {
         $userType = $request->get('user_type');
 
-        // Lấy danh sách users (trừ Super Admin)
+        // Lấy danh sách users (chỉ lấy tài khoản đang đăng nhập)
         $query = \App\Models\User::with(['position', 'typeAccount', 'branch'])
+            ->where('id', auth()->id())
             ->where('status', 0);
 
         if ($userType === 'manager') {

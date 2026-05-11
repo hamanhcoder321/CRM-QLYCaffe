@@ -17,6 +17,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::prefix('applications')->name('applications.')->group(function () {
             Route::get('/', [\Modules\TuyenDung\Http\Controllers\ApplicationController::class, 'index'])->name('list');
             Route::get('/data', [\Modules\TuyenDung\Http\Controllers\ApplicationController::class, 'data'])->name('data');
+            Route::get('/{id}', [\Modules\TuyenDung\Http\Controllers\ApplicationController::class, 'show'])->name('show');
             Route::post('/update-status/{id}', [\Modules\TuyenDung\Http\Controllers\ApplicationController::class, 'updateStatus'])->name('update-status');
         });
     });

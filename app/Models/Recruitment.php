@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class Recruitment extends Model
 {
+    use BelongsToBranch;
+
     public const PRIORITY_LOW = 0;
     public const PRIORITY_MEDIUM = 1;
     public const PRIORITY_HIGH = 2;
@@ -26,6 +29,7 @@ class Recruitment extends Model
         'status',
         'obstacle',
         'solution',
+        'branch_id',
     ];
 
     public function position()

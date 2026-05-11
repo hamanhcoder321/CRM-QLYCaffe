@@ -98,7 +98,6 @@ class NhapHangSeeder extends Seeder
         }
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        DB::table('storages')->truncate(); // Dọn kho cũ (nếu có) do lúc nãy MenuSeeder tạo ko có dính líu nhập hàng
         DB::table('storages')->insert($storages);
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 

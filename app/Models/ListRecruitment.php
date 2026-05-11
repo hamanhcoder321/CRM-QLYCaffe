@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class ListRecruitment extends Model
 {
+    use BelongsToBranch;
+
     protected $table = 'lists_recruitments';
 
     protected $fillable = [
@@ -21,6 +24,9 @@ class ListRecruitment extends Model
         'status',
         'day_work',
         'note',
+        'experience',
+        'skills',
+        'branch_id',
     ];
 
     public function recruitment()

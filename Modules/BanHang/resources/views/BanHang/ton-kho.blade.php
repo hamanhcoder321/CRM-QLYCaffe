@@ -218,11 +218,24 @@ function loadTonKhoStats() {
 }
 loadTonKhoStats();
 
-// Load shipments for modal
+let shipmentsData = [];
+// Tải danh sách lô hàng cho form (modal)
 $.get('{{ url("/ban-hang/shipments") }}', function(data) {
+    shipmentsData = data || [];
     let opts = '<option value="">-- Chọn lô hàng --</option>';
-    (data||[]).forEach(s => opts += `<option value="${s.id}">${s.name}</option>`);
+    shipmentsData.forEach(s => opts += `<option value="${s.id}">${s.name}</option>`);
     $('#product-shipment').html(opts);
+});
+
+// Tự động điền loại lô hàng (Mới/Cũ) khi chọn một lô hàng
+$('#product-shipment').change(function() {
+    const selectedId = $(this).val();
+    if (selectedId) {
+        const shipment = shipmentsData.find(s => s.id == selectedId);
+        if (shipment && shipment.type_arrange !== null) {
+            $('#product-type-arrange').val(shipment.type_arrange);
+        }
+    }
 });
 
 // Sửa

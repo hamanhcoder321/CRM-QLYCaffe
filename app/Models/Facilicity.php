@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\BelongsToBranch;
 
 class Facilicity extends Model
 {
+    use BelongsToBranch;
+
     protected $table = '_facilitices';
 
     protected $fillable = [
@@ -19,6 +22,7 @@ class Facilicity extends Model
         'manager_user_id',
         'day',
         'note',
+        'branch_id',
     ];
 
     /** Người phụ trách */

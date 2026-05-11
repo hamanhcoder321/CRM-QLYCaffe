@@ -12,10 +12,16 @@ trait BelongsToBranch
      */
     protected static function bootBelongsToBranch()
     {
-        // Tự động gán branch_id khi tạo mới
         static::creating(function ($model) {
-            if (Auth::check() && !$model->branch_id) {
-                $model->branch_id = Auth::user()->branch_id;
+            if (Auth::check() && empty($model->branch_id)) {
+                $user = Auth::user();
+                if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
+                    if (session()->has('selected_branch_id') && session('selected_branch_id') !== 'all') {
+                        $model->branch_id = session('selected_branch_id');
+                    }
+                } else {
+                    $model->branch_id = $user->branch_id;
+                }
             }
         });
 

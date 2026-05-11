@@ -110,11 +110,29 @@ class NhapHangRepository implements NhapHangRepositoryInterface
         ]);
 
         // Tự động tạo Shipment (Đơn nhập) liên kết
-        Shipment::create([
+        $shipment = Shipment::create([
             'arrange_id'  => $arrange->id,
             'customer_id' => null,
             'car_money'   => 0,
         ]);
+
+        if (!empty($data['products'])) {
+            $products = json_decode($data['products'], true);
+            if (is_array($products)) {
+                foreach ($products as $p) {
+                    if (!empty($p['name']) && !empty($p['number_in'])) {
+                        \App\Models\Product::create([
+                            'shipment_id' => $shipment->id,
+                            'name'        => $p['name'],
+                            'number_in'   => $p['number_in'],
+                            'number_out'  => 0,
+                            'cost_price'  => $p['cost_price'] ?? 0,
+                            'price'       => $p['price'] ?? 0,
+                        ]);
+                    }
+                }
+            }
+        }
 
         return $arrange;
     }
@@ -140,12 +158,53 @@ class NhapHangRepository implements NhapHangRepositoryInterface
         ]);
 
         // Đồng bộ Shipment nếu chưa có
-        if ($arrange->shipments()->count() === 0) {
-            Shipment::create([
+        $shipment = $arrange->shipments()->first();
+        if (!$shipment) {
+            $shipment = Shipment::create([
                 'arrange_id'  => $arrange->id,
                 'customer_id' => null,
                 'car_money'   => 0,
             ]);
+        }
+
+        if (isset($data['products'])) {
+            $products = json_decode($data['products'], true);
+            if (is_array($products)) {
+                $existingProductIds = $shipment->products()->pluck('id')->toArray();
+                $updatedProductIds = [];
+
+                foreach ($products as $p) {
+                    if (empty($p['name']) || empty($p['number_in'])) continue;
+
+                    if (!empty($p['id']) && in_array($p['id'], $existingProductIds)) {
+                        // Cập nhật
+                        $shipment->products()->where('id', $p['id'])->update([
+                            'name'       => $p['name'],
+                            'number_in'  => $p['number_in'],
+                            'cost_price' => $p['cost_price'] ?? 0,
+                            'price'      => $p['price'] ?? 0,
+                        ]);
+                        $updatedProductIds[] = $p['id'];
+                    } else {
+                        // Thêm mới
+                        $newProduct = \App\Models\Product::create([
+                            'shipment_id' => $shipment->id,
+                            'name'        => $p['name'],
+                            'number_in'   => $p['number_in'],
+                            'number_out'  => 0,
+                            'cost_price'  => $p['cost_price'] ?? 0,
+                            'price'       => $p['price'] ?? 0,
+                        ]);
+                        $updatedProductIds[] = $newProduct->id;
+                    }
+                }
+
+                // Xóa những product bị bỏ trên form
+                $productsToDelete = array_diff($existingProductIds, $updatedProductIds);
+                if (!empty($productsToDelete)) {
+                    $shipment->products()->whereIn('id', $productsToDelete)->delete();
+                }
+            }
         }
 
         return $updated;

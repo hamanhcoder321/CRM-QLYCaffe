@@ -2,7 +2,7 @@
 namespace App\Modules\AI\Services;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class DatabaseAIService
 {
@@ -13,101 +13,124 @@ class DatabaseAIService
         $this->ai = new OpenAIService();
     }
 
-    /**
-     * Mô tả cấu trúc Database cho AI
-     */
-    public function getDatabaseSchema()
+    public function askDatabase(string $question): string
     {
-        // Lấy dữ liệu thực tế
-        $branchNames = DB::table('branches')->pluck('name')->toArray();
-        $positionNames = DB::table('positions')->pluck('name')->toArray();
-        $partNames = DB::table('parts')->pluck('name')->toArray();
-
-        $tables = [
-            'users' => 'Nhân viên. Cột: name, email, branch_id, part_id, position_id, status(0:làm).',
-            'branches' => 'Chi nhánh. Cột: id, name.',
-            'parts' => 'Bộ phận (Ví dụ: Pha chế, Phục vụ). Cột: id, name.',
-            'positions' => 'Chức vụ (Ví dụ: Quản lý, Admin). Cột: id, name.',
-            'sells' => 'Doanh thu. Cột: shipment_revenue, sell_day, branch_id, status(1).',
-            'total_fees' => 'Chi phí. Cột: money, day, branch_id.',
-            'products' => 'Sản phẩm. Cột: name, number_in, number_out, shipment_id.',
-            'storages' => 'Kho. Cột: shipment_id, branch_id.',
-        ];
-
-        $schemaText = "DANH SÁCH CHI NHÁNH: " . implode(', ', $branchNames) . "\n";
-        $schemaText .= "DANH SÁCH BỘ PHẬN (Parts): " . implode(', ', $partNames) . "\n";
-        $schemaText .= "DANH SÁCH CHỨC VỤ (Positions): " . implode(', ', $positionNames) . "\n\n";
-        
-        $schemaText .= "MỐI QUAN HỆ CHUẨN:\n";
-        $schemaText .= "- users JOIN parts ON users.part_id = parts.id\n";
-        $schemaText .= "- users JOIN positions ON users.position_id = positions.id\n";
-        $schemaText .= "- users JOIN branches ON users.branch_id = branches.id\n";
-        $schemaText .= "- Xem tồn kho: products JOIN storages ON products.shipment_id = storages.shipment_id JOIN branches ON storages.branch_id = branches.id\n\n";
-
-        foreach ($tables as $table => $desc) {
-            $columns = Schema::getColumnListing($table);
-            $schemaText .= "- Bảng `{$table}` ({$desc}): " . implode(', ', $columns) . "\n";
-        }
-
-        return $schemaText;
-    }
-
-    /**
-     * Nhận câu hỏi và thực thi SQL trả về kết quả
-     */
-    public function askDatabase(string $question)
-    {
-        $schema = $this->getDatabaseSchema();
-        
-        $systemPrompt = "Bạn là trợ lý dữ liệu CRM Café. 
-NHIỆM VỤ: Chuyển câu hỏi người dùng thành 1 câu lệnh SQL SELECT.
-
-QUY TẮC BẮT BUỘC:
-1. Nếu dùng subquery trong SELECT, phải có từ khóa SELECT: (SELECT SUM(...) FROM ...).
-2. Doanh thu: SUM(shipment_revenue) FROM sells WHERE status = 1.
-3. Chi phí: SUM(money) FROM total_fees.
-4. Thời gian 'tháng này': WHERE MONTH(column) = MONTH(CURRENT_DATE) AND YEAR(column) = YEAR(CURRENT_DATE).
-5. Luôn dùng JOIN branches ON ... = branches.id để lọc hoặc hiển thị tên chi nhánh.
-6. Nếu người dùng hỏi 'chi tiết', hãy hiển thị danh sách các hàng dữ liệu (ví dụ: SELECT * FROM branches).
-7. Trả về SQL thuần, không markdown, không giải thích.";
-
-        $prompt = "DATABASE SCHEMA:\n{$schema}\n\nCÂU HỎI: {$question}\n\nSQL:";
-        
-        $response = $this->ai->chat($prompt, $systemPrompt);
-        
-        // Trích xuất SQL
-        preg_match('/SELECT(.*)/is', $response, $matches);
-        $sql = $matches[0] ?? $response;
-        $sql = str_replace(['```sql', '```', ';'], '', trim($sql));
-        
-        // Sửa lỗi phổ biến: AI quên SELECT trong ngoặc
-        $sql = preg_replace('/\((SUM|COUNT|AVG)/i', '(SELECT $1', $sql);
-
-        if (strtoupper(substr($sql, 0, 6)) !== 'SELECT') {
-            return "Tôi không tìm thấy thông tin này. Bạn hãy thử hỏi cụ thể hơn nhé.";
-        }
-
         try {
-            if (stripos($sql, 'LIMIT') === false && stripos($sql, 'COUNT') === false && stripos($sql, 'SUM') === false) {
-                $sql .= " LIMIT 50";
-            }
+            $today     = Carbon::today()->toDateString();
+            $thisMonth = Carbon::now()->format('Y-m');
 
-            $results = DB::select($sql);
-            
-            if (empty($results) || (count($results) == 1 && array_values((array)$results[0])[0] === null)) {
-                return "Hiện tại chưa có dữ liệu cho yêu cầu này của bạn.";
-            }
+            // ===== DỮ LIỆU CĂN BẢN (nhỏ gọn) =====
+            $chiNhanh  = DB::table('branches')->get(['id', 'name']);
+            $boPhan    = DB::table('parts')->get(['id', 'name']);
+            $chucVu    = DB::table('positions')->get(['id', 'name']);
 
-            $resultJson = json_encode($results, JSON_UNESCAPED_UNICODE);
-            $answerPrompt = "Dựa trên dữ liệu SQL sau, hãy trả lời câu hỏi của người dùng. 
-Nếu là danh sách -> Hãy trình bày dạng bảng hoặc liệt kê rõ ràng.
-CÂU HỎI: {$question}
-DỮ LIỆU: {$resultJson}";
+            // Nhân viên
+            $nhanVien  = DB::table('users')
+                ->whereNull('deleted_at')
+                ->get(['id', 'name', 'email', 'branch_id', 'part_id', 'position_id', 'status']);
 
-            return $this->ai->chat($answerPrompt, "Bạn là trợ lý AI thông minh.");
+            // Thực đơn
+            $thucDon   = DB::table('drinks')->get(['id', 'name', 'price', 'status']);
+
+            // Kho: chỉ lấy 20 nguyên liệu
+            $kho       = DB::table('products')
+                ->orderBy('number_in', 'desc')
+                ->limit(20)
+                ->get(['id', 'name', 'number_in', 'number_out', 'cost_price']);
+
+            // Doanh thu tổng hợp
+            $doanhThuHomNay = DB::table('sells')
+                ->where('status', 1)
+                ->where('sell_day', $today)
+                ->sum('shipment_revenue');
+
+            $doanhThuThangNay = DB::table('sells')
+                ->where('status', 1)
+                ->whereRaw("DATE_FORMAT(sell_day, '%Y-%m') = ?", [$thisMonth])
+                ->sum('shipment_revenue');
+
+            $doanhThuTheoNgay = DB::table('sells')
+                ->where('status', 1)
+                ->orderBy('sell_day', 'desc')
+                ->limit(30)
+                ->get(['sell_day', 'shipment_revenue', 'branch_id']);
+
+            // Chi phí tổng hợp
+            $chiPhiHomNay = DB::table('total_fees')
+                ->where('day', $today)
+                ->sum('money');
+
+            $chiPhiThangNay = DB::table('total_fees')
+                ->whereRaw("DATE_FORMAT(day, '%Y-%m') = ?", [$thisMonth])
+                ->sum('money');
+
+            // Tuyển dụng
+            $tuyenDung = DB::table('recruitments')
+                ->get(['id', 'position_id', 'part_id', 'number', 'status', 'branch_id', 'deadline']);
+
+            $hoSo = DB::table('lists_recruitments')
+                ->get(['id', 'name', 'phone', 'email', 'status', 'result', 'recruitment_id']);
+
+            // Tổng số giao dịch
+            $tongGiaoDich = DB::table('sells')->where('status', 1)->count();
+            $tongGiaoDichHomNay = DB::table('sells')->where('status', 1)->where('sell_day', $today)->count();
+
+            // Đóng gói context gọn
+            $context = [
+                'hom_nay'            => $today,
+                'thang_nay'          => $thisMonth,
+                'chi_nhanh'          => $chiNhanh,
+                'bo_phan'            => $boPhan,
+                'chuc_vu'            => $chucVu,
+                'nhan_vien'          => $nhanVien,
+                'thuc_don'           => $thucDon,
+                'kho_nguyen_lieu_top20' => $kho,
+                'doanh_thu_hom_nay'  => $doanhThuHomNay,
+                'doanh_thu_thang_nay'=> $doanhThuThangNay,
+                'doanh_thu_30_ngay_gan_nhat' => $doanhThuTheoNgay,
+                'chi_phi_hom_nay'    => $chiPhiHomNay,
+                'chi_phi_thang_nay'  => $chiPhiThangNay,
+                'tong_giao_dich'     => $tongGiaoDich,
+                'tong_giao_dich_hom_nay' => $tongGiaoDichHomNay,
+                'tuyen_dung'         => $tuyenDung,
+                'ho_so_ung_vien'     => $hoSo,
+            ];
 
         } catch (\Throwable $e) {
-            return "Lỗi hệ thống: " . $e->getMessage() . "\n(Lệnh SQL lỗi: " . $sql . ")";
+            \Log::error('[AI] Loi query database: ' . $e->getMessage());
+            return 'Loi khi doc du lieu: ' . $e->getMessage();
+        }
+
+        $jsonData = json_encode($context, JSON_UNESCAPED_UNICODE);
+
+        $systemPrompt = "Ban la tro ly AI thong minh cua he thong CRM Chuoi Cafe.
+
+DU LIEU THONG KE HE THONG (cap nhat thoi gian thuc):
+{$jsonData}
+
+HUONG DAN XU LY DU LIEU:
+1. Tu dong map khoa ngoai: branch_id -> chi_nhanh, part_id -> bo_phan, position_id -> chuc_vu.
+2. Y NGHIA STATUS CHINH XAC THEO TUNG BANG (rat quan trong):
+   - Bang nhan_vien (users):         status=0 la DANG LAM VIEC, status=1 la DA NGHI VIEC.
+   - Bang thuc_don (drinks):         status=0 la NGUNG BAN,     status=1 la DANG BAN.
+   - Bang tuyen_dung (recruitments): status=0 la DANG TUYEN,    status=1 la HOAN THANH, status=2 la TRE HAN.
+   - Bang ho_so_ung_vien:            result=0  la KHONG DAT,    result=1  la DAT.
+   - Bang doanh_thu (sells):         status=1  la DA BAN.
+3. Doanh thu da duoc tinh san (doanh_thu_hom_nay, doanh_thu_thang_nay...), dung luon khong can tinh lai.
+4. Don vi tien te la VND, dinh dang so co dau phay (vi du: 1,500,000 VND).
+
+CACH TRA LOI:
+- Tra loi bang tieng Viet, chinh xac, chuyen nghiep.
+- Neu can bao cao/danh sach, trinh bay bang Markdown Table hoac gach dau dong.
+- KHONG giai thich cach tim du lieu, chi dua ra ket qua.
+- Neu chua co du lieu, thong bao lich su.";
+
+        $prompt = "CAU HOI: {$question}";
+
+        try {
+            return $this->ai->chat($prompt, $systemPrompt, 2000);
+        } catch (\Throwable $e) {
+            return 'Loi khi AI xu ly du lieu: ' . $e->getMessage();
         }
     }
 }

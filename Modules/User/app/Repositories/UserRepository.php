@@ -19,16 +19,20 @@ class UserRepository implements UserRepositoryInterface{
             ['id' => 1, 'text' => 'Đã nghỉ'],
             ['id' => 0, 'text' => 'Đang làm']
         ]);
-
         $part_f = \App\Models\Part::select('id', 'name as text')->orderBy('name')->get();
-        $team_f = \App\Models\Team::select('id', 'name as text')->orderBy('name')->get();
+        if (!\App\Models\Team::where('name', 'Ca Tối')->exists()) {
+            \App\Models\Team::create(['name' => 'Ca Tối']);
+        }
+        $team_f = \App\Models\Team::select('id', 'name as text')->where('name', '!=', 'Ca Kho')->orderBy('name')->get();
         $role_f = \App\Models\Type_account::select('id', 'name as text')->orderBy('name')->get();
+        $branch_f = \App\Models\Branch::select('id', 'name as text')->orderBy('name')->get();
 
         return [
             'status_f' => $status_f,
             'part_f'   => $part_f,
             'team_f'   => $team_f,
-            'role_f'   => $role_f
+            'role_f'   => $role_f,
+            'branch_f' => $branch_f
         ];
     }
 
@@ -36,7 +40,14 @@ class UserRepository implements UserRepositoryInterface{
         $users = \App\Models\User::leftJoin('branches', 'users.branch_id', '=', 'branches.id')
                 ->with('part', 'position', 'team', 'typeAccount')
                 ->select('users.*', 'branches.name as branch_name');
-            $users->orderBy('created_at', 'desc');
+
+        if ($request->input('is_account_page') === 'true') {
+            $users->whereDoesntHave('typeAccount', function($q) {
+                $q->whereIn('name', ['Admin', 'Super Admin', 'Giám đốc']);
+            });
+        }
+
+        $users->orderBy('created_at', 'desc');
 
             // check filter
             if ($request->filled('part_id')) {
@@ -50,6 +61,9 @@ class UserRepository implements UserRepositoryInterface{
             }
             if ($request->filled('type_accounts_id')) {
                 $users->where('users.type_accounts_id', $request->type_accounts_id);
+            }
+            if ($request->filled('branch_id')) {
+                $users->where('users.branch_id', $request->branch_id);
             }
 
             return DataTables::of($users)
@@ -108,10 +122,13 @@ class UserRepository implements UserRepositoryInterface{
     }
 
     public function formOptions(): array{
+        if (!\App\Models\Team::where('name', 'Ca Tối')->exists()) {
+            \App\Models\Team::create(['name' => 'Ca Tối']);
+        }
         return [
             'part'   => \App\Models\Part::select('id', 'name as text')->orderBy('name')->get(),
             'position' => \App\Models\Position::select('id', 'name as text')->orderBy('name')->get(),
-            'team'   => \App\Models\Team::select('id', 'name as text')->orderBy('name')->get(),
+            'team'   => \App\Models\Team::select('id', 'name as text')->where('name', '!=', 'Ca Kho')->orderBy('name')->get(),
             'type_account' => \App\Models\Type_account::select('id', 'name as text')->orderBy('name')->get(),
             'branch' => \App\Models\Branch::select('id', 'name as text')->orderBy('name')->get(),
 
@@ -137,10 +154,10 @@ class UserRepository implements UserRepositoryInterface{
             'password' => Hash::make($validated['password']),
             'birthday' => $validated['birthday'],
             'sex' => $validated['sex'],
-            'part_id' => $validated['part'],
-            'position_id' => $validated['position'],
-            'type_work' => $validated['type_work'],
-            'team_id' => $validated['team'],
+            'part_id' => !empty($validated['part']) ? $validated['part'] : null,
+            'position_id' => !empty($validated['position']) ? $validated['position'] : null,
+            'type_work' => isset($validated['type_work']) && $validated['type_work'] !== '' && $validated['type_work'] !== null ? $validated['type_work'] : 0,
+            'team_id' => !empty($validated['team']) ? $validated['team'] : null,
             'phone' => $validated['phone'],
             'address' => $validated['address'],
             'status' => $validated['status'],
@@ -157,10 +174,10 @@ class UserRepository implements UserRepositoryInterface{
             'email' => $validated['email'],
             'birthday' => $validated['birthday'],
             'sex' => $validated['sex'],
-            'part_id' => $validated['part'],
-            'position_id' => $validated['position'],
-            'type_work' => $validated['type_work'],
-            'team_id' => $validated['team'],
+            'part_id' => !empty($validated['part']) ? $validated['part'] : null,
+            'position_id' => !empty($validated['position']) ? $validated['position'] : null,
+            'type_work' => isset($validated['type_work']) && $validated['type_work'] !== '' && $validated['type_work'] !== null ? $validated['type_work'] : 0,
+            'team_id' => !empty($validated['team']) ? $validated['team'] : null,
             'phone' => $validated['phone'],
             'address' => $validated['address'],
             'status' => $validated['status'],

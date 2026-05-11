@@ -17,9 +17,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             FullDataSeeder::class,
-            NhapHangSeeder::class,
-            MenuSeeder::class,
-            NhaCungCapSeeder::class,
+            // NhapHangSeeder::class,
+            // MenuSeeder::class,
+            // NhaCungCapSeeder::class,
         ]);
     }
 }

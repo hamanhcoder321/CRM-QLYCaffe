@@ -122,7 +122,7 @@ class BanHangController extends Controller
         ]);
 
         if (isset($data['recipes'])) {
-            $drink->recipes()->delete(); // Clear old recipes
+            $drink->recipes()->delete(); // Xóa công thức cũ
             $recipes = json_decode($data['recipes'], true);
             if(is_array($recipes)) {
                 foreach ($recipes as $rc) {
@@ -231,7 +231,7 @@ class BanHangController extends Controller
         $data['cost_price'] = (int) ($data['cost_price'] ?? 0);
         $data['shipment_id'] = empty($data['shipment_id']) ? null : $data['shipment_id'];
         
-        // Bỏ qua update ảnh vì Nguyên liệu không dùng ảnh nữa
+        // Bỏ qua cập nhật ảnh vì Nguyên liệu không dùng ảnh nữa
         unset($data['image']);
 
         $this->repo->updateProduct($product->id, $data);
@@ -250,6 +250,11 @@ class BanHangController extends Controller
     {
         $this->repo->deleteProduct($product->id);
         return response()->json(['success' => true, 'message' => 'Đã xóa!']);
+    }
+
+    public function getShipments()
+    {
+        return response()->json($this->repo->getShipmentsForSelect());
     }
 
     // ================== TỒN KHO ==================

@@ -24,13 +24,6 @@
       <div class="card shadow-sm">
         <div class="card-header border-0 d-flex justify-content-between align-items-center">
           <h3 class="card-title font-weight-bold mb-0"><i class="fas fa-users mr-2 text-primary"></i>Danh sách Nhân sự (Ngày: {{ date('d/m/Y') }})</h3>
-          <form action="{{ route('nhansu.cham-cong') }}" method="GET" class="form-inline ml-auto">
-            <select name="user_type" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
-              <option value="">Tất cả nhân sự</option>
-              <option value="manager" {{ request('user_type') == 'manager' ? 'selected' : '' }}>Chỉ Quản lý</option>
-              <option value="staff" {{ request('user_type') == 'staff' ? 'selected' : '' }}>Chỉ Nhân viên</option>
-            </select>
-          </form>
         </div>
         <div class="card-body table-responsive p-0">
           <table class="table table-hover table-striped mb-0 text-sm">

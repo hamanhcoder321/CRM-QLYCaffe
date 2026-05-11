@@ -36,9 +36,13 @@ class ApplicationController extends Controller
             })
             ->editColumn('created_at', fn ($r) => $r->created_at->format('d/m/Y H:i'))
             ->addColumn('action', function ($r) {
-                if ($r->status != 0) return '—';
+                $btnView = '<button class="btn btn-sm btn-info mr-1" onclick="viewApplication(' . $r->id . ')" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>';
                 
-                return '<button class="btn btn-sm btn-success mr-1" onclick="updateStatus(' . $r->id . ', 1)" title="Duyệt / Đạt">
+                if ($r->status != 0) return $btnView;
+                
+                return $btnView . '<button class="btn btn-sm btn-success mr-1" onclick="updateStatus(' . $r->id . ', 1)" title="Duyệt / Đạt">
                             <i class="fas fa-check"></i>
                         </button>
                         <button class="btn btn-sm btn-danger" onclick="updateStatus(' . $r->id . ', 2)" title="Không đạt">
@@ -59,6 +63,17 @@ class ApplicationController extends Controller
             'result' => $status == 1 ? 1 : 0
         ]);
 
+        if ($status == 1 && $application->recruitment) {
+            $recruitment = $application->recruitment;
+            if ($recruitment->number > 0) {
+                $recruitment->number -= 1;
+                if ($recruitment->number == 0) {
+                    $recruitment->status = 1; // Hoàn thành
+                }
+                $recruitment->save();
+            }
+        }
+
         // Gửi mail thông báo
         try {
             Mail::to($application->email)->send(new RecruitmentResultMail($application));
@@ -71,5 +86,11 @@ class ApplicationController extends Controller
             'success' => true,
             'message' => 'Đã cập nhật trạng thái và gửi email thông báo.'
         ]);
+    }
+
+    public function show($id)
+    {
+        $application = ListRecruitment::with(['recruitment.position', 'recruitment.part'])->findOrFail($id);
+        return response()->json($application);
     }
 }

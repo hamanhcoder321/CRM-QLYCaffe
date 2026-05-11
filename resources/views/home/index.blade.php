@@ -126,6 +126,15 @@ ROUTE: GET / → home.index
         .recruitment-info strong { color: #111827; }
         .recruitment-desc { font-size: 14px; color: var(--text-gray); line-height: 1.7; }
 
+        .menu { background: #fafafa; }
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1100px; margin: 0 auto; }
+        .menu-card { background: #fff; border: 1px solid rgba(111, 78, 55, 0.12); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); transition: transform 0.25s ease, box-shadow 0.25s ease; text-align: center; }
+        .menu-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1); }
+        .menu-image { width: 100%; height: 200px; object-fit: cover; background: var(--cafe-light); display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--cafe-brown); }
+        .menu-content { padding: 20px; }
+        .menu-card h3 { font-size: 18px; font-weight: 800; color: var(--cafe-dark); margin-bottom: 8px; }
+        .menu-price { font-size: 16px; font-weight: 700; color: var(--cafe-gold); }
+
         .empty-box { max-width: 1100px; margin: 0 auto; padding: 24px; border: 1px dashed rgba(111, 78, 55, 0.25); border-radius: 16px; text-align: center; color: var(--text-gray); background: rgba(245, 236, 228, 0.35); }
 
         footer { background: var(--cafe-dark); color: rgba(255, 255, 255, 0.7); text-align: center; padding: 32px 60px; font-size: 14px; }
@@ -174,7 +183,7 @@ ROUTE: GET / → home.index
             .hero { padding: 100px 20px 60px; }
             .hero h1 { font-size: 34px; }
             section { padding: 60px 20px; }
-            .features-grid, .steps-grid, .recruitment-grid { grid-template-columns: 1fr; }
+            .features-grid, .steps-grid, .recruitment-grid, .menu-grid { grid-template-columns: 1fr; }
             .hero-stats { gap: 24px; }
         }
     </style>
@@ -246,7 +255,7 @@ ROUTE: GET / → home.index
                     <div class="label">Cấp phân quyền</div>
                 </div>
                 <div class="stat-item reveal delay-3">
-                    <div class="number">∞</div>
+                    <div class="number"><i class="fas fa-home"></i></div>
                     <div class="label">Chi nhánh</div>
                 </div>
             </div>
@@ -286,12 +295,44 @@ ROUTE: GET / → home.index
                 <h3>Phân quyền bảo mật</h3>
                 <p>3 cấp: Admin, Quản lý chi nhánh, Nhân viên. Mỗi người chỉ thấy đúng dữ liệu của mình.</p>
             </div>
-            <div class="feature-card reveal delay-6">
+            <!-- <div class="feature-card reveal delay-6">
                 <div class="feature-icon"><i class="fas fa-handshake"></i></div>
                 <h3>Chăm sóc khách hàng</h3>
                 <p>Lưu lịch sử mua hàng, chăm sóc khách hàng thân thiết từng chi nhánh.</p>
-            </div>
+            </div> -->
         </div>
+    </section>
+
+    <section class="menu" id="menu">
+        <div class="section-header reveal">
+            <div class="section-badge">Thực đơn</div>
+            <h2 class="section-title">Menu Nổi Bật</h2>
+            <p class="section-sub">Những món thức uống được yêu thích nhất tại hệ thống M&T Cafe.</p>
+        </div>
+
+        @if(isset($drinks) && $drinks->count())
+            <div class="menu-grid">
+                @foreach($drinks as $drink)
+                    <div class="menu-card reveal delay-{{ min($loop->iteration, 6) }}">
+                        @if($drink->image)
+                            <img src="{{ asset('storage/' . $drink->image) }}" alt="{{ $drink->name }}" class="menu-image">
+                        @else
+                            <div class="menu-image">
+                                <i class="fas fa-coffee"></i>
+                            </div>
+                        @endif
+                        <div class="menu-content">
+                            <h3>{{ $drink->name }}</h3>
+                            <div class="menu-price">{{ number_format($drink->price, 0, ',', '.') }} VNĐ</div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="empty-box reveal">
+                Chưa có sản phẩm nào trên menu.
+            </div>
+        @endif
     </section>
 
     <section class="recruitment" id="recruitment">
@@ -409,6 +450,14 @@ ROUTE: GET / → home.index
                 <div class="form-group">
                     <label>Số điện thoại <span style="color:red">*</span></label>
                     <input type="tel" name="phone" placeholder="09xxxxxxxx" required>
+                </div>
+                <div class="form-group">
+                    <label>Kinh nghiệm làm việc</label>
+                    <textarea name="experience" rows="3" placeholder="Mô tả kinh nghiệm của bạn (nếu có)..." style="width: 100%; padding: 12px 16px; border: 1.5px solid #eee; border-radius: 10px; font-size: 15px; resize: vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Kỹ năng nổi bật</label>
+                    <textarea name="skills" rows="3" placeholder="Các kỹ năng mềm, kỹ năng chuyên môn..." style="width: 100%; padding: 12px 16px; border: 1.5px solid #eee; border-radius: 10px; font-size: 15px; resize: vertical;"></textarea>
                 </div>
                 <button type="submit" class="btn-submit" id="btnSubmitApply">Gửi hồ sơ ứng tuyển</button>
             </form>

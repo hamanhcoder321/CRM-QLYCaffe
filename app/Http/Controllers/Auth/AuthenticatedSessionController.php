@@ -28,6 +28,21 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+
+        // Nếu là "Nhân viên" (type_accounts_id == 3)
+        if ($user->type_accounts_id == 3 && $user->part) {
+            $partName = strtolower($user->part->name);
+
+            if (str_contains($partName, 'bán hàng') || str_contains($partName, 'phục vụ')) {
+                return redirect()->intended('/ban-hang/giao-dich');
+            } elseif (str_contains($partName, 'kho')) {
+                return redirect()->intended('/nhap-hang');
+            } elseif (str_contains($partName, 'pha chế')) {
+                return redirect()->intended('/ban-hang/thuc-don');
+            }
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

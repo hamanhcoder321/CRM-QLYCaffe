@@ -91,7 +91,6 @@ class NhaCungCapSeeder extends Seeder
         ];
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        DB::table('customers')->truncate();
         
         foreach ($nccs as $ncc) {
             $ncc['created_at'] = now();

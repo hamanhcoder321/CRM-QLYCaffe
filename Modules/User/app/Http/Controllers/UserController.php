@@ -55,11 +55,11 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:6'],
             'birthday' => ['date', 'nullable'],
             'sex' => ['required'],
-            'part' => ['integer', 'exists:parts,id'],
-            'position' => ['integer', 'exists:positions,id'],
-            'type_work' => ['required'],
-            'team' => ['integer', 'exists:teams,id'],
-            'phone' => ['nullable', 'max:20'],
+            'part' => ['nullable', 'integer', 'exists:parts,id'],
+            'position' => ['nullable', 'integer', 'exists:positions,id'],
+            'type_work' => ['nullable'],
+            'team' => ['nullable', 'integer', 'exists:teams,id'],
+            'phone' => ['nullable', 'regex:/^[0-9]+$/', 'min:10', 'max:11'],
             'address' => ['nullable', 'max:255'],
             'status' => ['required'],
             'start_day' => ['date', 'nullable'],
@@ -74,7 +74,10 @@ class UserController extends Controller
             'sex.required' => 'Giới tính bắt buộc phải nhập',
             'type_work.required' => 'Hình thức làm bắt buộc phải nhập',
             'status.required' => 'Trạng thái bắt buộc phải nhập',
-            'type_account.required' => 'Loại tài khoản bắt buộc phải nhập'
+            'type_account.required' => 'Loại tài khoản bắt buộc phải nhập',
+            'phone.regex' => 'Số điện thoại chỉ được chứa các chữ số',
+            'phone.min' => 'Số điện thoại phải có ít nhất 10 chữ số',
+            'phone.max' => 'Số điện thoại không được vượt quá 11 chữ số'
         ]);
 
         $this->userRepositroy->store($validated);
@@ -101,11 +104,11 @@ class UserController extends Controller
             'password' => ['nullable', 'string', 'min:8'],
             'birthday' => ['date', 'nullable'],
             'sex' => ['required'],
-            'part' => ['integer', 'exists:parts,id'],
-            'position' => ['integer', 'exists:positions,id'],
-            'type_work' => ['required'],
-            'team' => ['integer', 'exists:teams,id'],
-            'phone' => ['nullable', 'max:20'],
+            'part' => ['nullable', 'integer', 'exists:parts,id'],
+            'position' => ['nullable', 'integer', 'exists:positions,id'],
+            'type_work' => ['nullable'],
+            'team' => ['nullable', 'integer', 'exists:teams,id'],
+            'phone' => ['nullable', 'regex:/^[0-9]+$/', 'min:10', 'max:11'],
             'address' => ['nullable', 'max:255'],
             'status' => ['required'],
             'start_day' => ['date', 'nullable'],
@@ -120,7 +123,10 @@ class UserController extends Controller
             'sex.required' => 'Giới tính bắt buộc phải nhập',
             'type_work.required' => 'Hình thức làm bắt buộc phải nhập',
             'status.required' => 'Trạng thái bắt buộc phải nhập',
-            'type_account.required' => 'Loại tài khoản bắt buộc phải nhập'
+            'type_account.required' => 'Loại tài khoản bắt buộc phải nhập',
+            'phone.regex' => 'Số điện thoại chỉ được chứa các chữ số',
+            'phone.min' => 'Số điện thoại phải có ít nhất 10 chữ số',
+            'phone.max' => 'Số điện thoại không được vượt quá 11 chữ số'
         ]);
 
         $this->userRepositroy->update($validated, $user);

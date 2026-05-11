@@ -133,6 +133,21 @@
                         </div>
                     </div>
 
+                    {{-- Chi tiết nguyên liệu --}}
+                    <div class="row mt-3 pt-3 border-top g-3">
+                        <div class="col-12 d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0"><i class="fas fa-boxes text-info mr-1"></i> Chi tiết nguyên liệu nạp vào kho</label>
+                            <button type="button" class="btn btn-sm btn-outline-info" id="btn-add-product">
+                                <i class="fas fa-plus"></i> Thêm nguyên liệu
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <div id="product-list">
+                                <!-- Product rows -->
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="form-errors" class="mt-3"></div>
                 </form>
             </div>
@@ -227,7 +242,7 @@ $.ajaxSetup({
 });
 
 $(function () {
-    // ===== INIT DATATABLE =====
+    // ===== KHỞI TẠO DATATABLE =====
     DT = $('#nhaphang-table').DataTable({
         processing: true,
         serverSide: true,
@@ -296,7 +311,7 @@ $(function () {
         }
     });
 
-    // ===== LOAD FORM OPTIONS =====
+    // ===== TẢI DỮ LIỆU CÁC TÙY CHỌN CHO FORM =====
     $.getJSON('{!! route('nhaphang.form-options') !!}').done(res => {
         formOptions = res;
         fillSelect('#f_user_id',        res.users);
@@ -305,26 +320,48 @@ $(function () {
         fillSelect('#f_result',         res.results);
     });
 
-    // ===== OPEN CREATE MODAL =====
+    // ===== MỞ MODAL THÊM MỚI =====
     $('#btn-open-create').on('click', function () {
         resetForm();
         $('#modalNhapHangLabel').text('Thêm lô hàng mới');
         $('#modalNhapHang').modal('show');
     });
 
-    // ===== SAVE (store / update) =====
+    // ===== LƯU (Thêm / Sửa) =====
     $('#btn-save').on('click', function () {
         const id = $('#arrange_id').val();
         const url = id
             ? '{!! url('nhap-hang/update') !!}/' + id
             : '{!! route('nhaphang.store') !!}';
 
-        // Convert empty string -> null cho các field integer
+        // Chuyển chuỗi rỗng -> null cho các trường số nguyên
         const formData = $('#form-nhaphang').serializeArray();
         const intFields = ['sale_user_id','part_id','team_id','user_id','support_user_id','type_arrange','result','total_arrange'];
         const params = {};
         formData.forEach(f => params[f.name] = f.value);
         intFields.forEach(f => { if (params[f] === '') params[f] = null; });
+
+        // Lấy chi tiết nguyên liệu
+        const products = [];
+        $('.product-row').each(function() {
+            const pId = $(this).data('id');
+            const pName = $(this).find('.p-name').val();
+            const pQty = $(this).find('.p-qty').val();
+            const pCost = $(this).find('.p-cost').val();
+            const pPrice = $(this).find('.p-price').val();
+            
+            if(pName && pQty) {
+                products.push({
+                    id: pId || '',
+                    name: pName,
+                    number_in: pQty,
+                    cost_price: pCost,
+                    price: pPrice
+                });
+            }
+        });
+        
+        params.products = JSON.stringify(products);
 
         $.ajax({
             url: url,
@@ -349,7 +386,7 @@ $(function () {
         });
     });
 
-    // ===== OPEN EDIT MODAL =====
+    // ===== MỞ MODAL SỬA =====
     window.openEdit = function (id) {
         resetForm();
         $.getJSON('{!! url('nhap-hang/get') !!}/' + id).done(function (data) {
@@ -365,11 +402,56 @@ $(function () {
             $('#f_result').val(data.result);
             $('#f_reason_fail').val(data.reason_fail);
             $('#modalNhapHangLabel').text('Sửa lô hàng: ' + data.name_arrange);
+            
+            $('#product-list').html('');
+            if (data.shipments && data.shipments.length > 0 && data.shipments[0].products) {
+                const products = data.shipments[0].products;
+                if (products.length > 0) {
+                    products.forEach(p => addProductRow(p));
+                } else {
+                    addProductRow();
+                }
+            } else {
+                addProductRow();
+            }
+
             $('#modalNhapHang').modal('show');
         });
     };
 
-    // ===== DELETE =====
+    // ===== Thêm/Xóa dòng nguyên liệu =====
+    function addProductRow(p = {}) {
+        const html = `
+            <div class="row g-2 mb-2 product-row align-items-center" data-id="${p.id || ''}">
+                <div class="col-md-4">
+                    <input type="text" class="form-control form-control-sm p-name" placeholder="Tên nguyên liệu (VD: Đường)" value="${p.name || ''}">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control form-control-sm p-qty" placeholder="Số lượng" min="1" value="${p.number_in || ''}">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control form-control-sm p-cost" placeholder="Giá nhập (đ)" min="0" value="${p.cost_price || ''}">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control form-control-sm p-price" placeholder="Giá bán (đ)" min="0" value="${p.price || ''}">
+                </div>
+                <div class="col-md-1 text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-remove-product" title="Xóa nguyên liệu"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+        `;
+        $('#product-list').append(html);
+    }
+
+    $('#btn-add-product').click(function() {
+        addProductRow();
+    });
+
+    $(document).on('click', '.btn-remove-product', function() {
+        $(this).closest('.product-row').remove();
+    });
+
+    // ===== XÓA =====
     $(document).on('click', '.btn-delete', function () {
         const $form = $(this).closest('form.form-delete');
         Swal.fire({
@@ -383,7 +465,7 @@ $(function () {
         });
     });
 
-    // ===== HELPERS =====
+    // ===== HÀM HỖ TRỢ =====
     function fillSelect(selector, items) {
         const el = $(selector);
         (items || []).forEach(item => el.append(new Option(item.text, item.id)));
@@ -393,6 +475,8 @@ $(function () {
         $('#form-nhaphang')[0].reset();
         $('#arrange_id').val('');
         $('#form-errors').html('');
+        $('#product-list').html('');
+        addProductRow(); // Thêm 1 dòng trống mặc định
     }
 });
 </script>

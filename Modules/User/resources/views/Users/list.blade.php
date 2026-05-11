@@ -39,7 +39,9 @@
                                                 <th>Ngày nghỉ</th>
                                                 <th>Loại TK</th>
                                                 <th>Chi nhánh</th>
+                                                @if(request()->is('account'))
                                                 <th>Tác vụ</th>
+                                                @endif
                                             </tr>
                                         </thead>
                                     </table>
@@ -121,6 +123,7 @@
                     d.status = $('#f_status').val() || '';
                     d.team_id = $('#f_team').val() || '';
                     d.type_account_id = $('#f_type_account').val() || '';
+                    d.is_account_page = '{{ request()->is("account") ? "true" : "false" }}';
                 }
             },
             columns: [
@@ -139,8 +142,10 @@
                 { data: 'start_day', name: 'start_day' },
                 { data: 'end_day', name: 'end_day' },
                 { data: 'type_accounts_id', name: 'type_accounts_id' },
-                { data: 'branch_name', name: 'branches.name' },
-                { data: 'action', name: 'action', orderable: false, searchable: false } // Tắt tìm kiếm cho cột này
+                { data: 'branch_name', name: 'branches.name' }
+                @if(request()->is('account'))
+                ,{ data: 'action', name: 'action', orderable: false, searchable: false } // Tắt tìm kiếm cho cột này
+                @endif
             ],
             language: {
                 processing: 'Đang tải...',

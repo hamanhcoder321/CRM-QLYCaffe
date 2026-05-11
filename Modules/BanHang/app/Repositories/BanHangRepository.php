@@ -297,6 +297,7 @@ class BanHangRepository implements BanHangRepositoryInterface
                     'id'   => $s->id,
                     'name' => $typeStr . ($s->arrange?->name_arrange ?? 'Đơn #' . $s->id)
                             . ' — ' . ($s->arrange?->day ?? ''),
+                    'type_arrange' => $s->arrange?->type_arrange
                 ];
             })
             ->toArray();

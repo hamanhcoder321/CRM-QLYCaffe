@@ -15,6 +15,8 @@ class CoCheLuongController extends Controller
      */
     public function index(Request $request)
     {
+        abort_unless(auth()->user()?->isSuperAdmin(), 403, 'Bạn không có quyền truy cập cơ chế lương.');
+
         $userType = $request->get('user_type');
 
         $query = User::with(['position', 'typeAccount', 'branch'])
@@ -42,6 +44,8 @@ class CoCheLuongController extends Controller
      */
     public function getMechanism($userId)
     {
+        abort_unless(auth()->user()?->isSuperAdmin(), 403, 'Bạn không có quyền truy cập cơ chế lương.');
+
         $mechanism = SalaryMechanism::where('user_id', $userId)->first();
         if (!$mechanism) {
             return response()->json([
@@ -61,6 +65,8 @@ class CoCheLuongController extends Controller
      */
     public function updateMechanism(Request $request)
     {
+        abort_unless(auth()->user()?->isSuperAdmin(), 403, 'Bạn không có quyền truy cập cơ chế lương.');
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'salary' => 'required|numeric|min:0',

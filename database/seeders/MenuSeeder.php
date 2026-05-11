@@ -46,9 +46,7 @@ class MenuSeeder extends Seeder
             ];
         }
 
-        DB::table('products')->truncate();
         DB::table('products')->insert($productData);
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $this->command->info('✅ Đã tạo dữ liệu Kho nguyên liệu & Menu Thức uống thành công!');
     }

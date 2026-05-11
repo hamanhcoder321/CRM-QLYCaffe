@@ -61,6 +61,7 @@ class NhapHangController extends Controller
             'result'         => ['nullable', 'integer'],
             'reason_fail'    => ['nullable', 'string', 'max:500'],
             'total_arrange'  => ['nullable', 'integer'],
+            'products'       => ['nullable', 'string'], // JSON string
         ], [
             'day.required'          => 'Ngày nhập hàng là bắt buộc',
             'name_arrange.required' => 'Tên lô hàng là bắt buộc',
@@ -94,6 +95,7 @@ class NhapHangController extends Controller
             'result'         => ['nullable', 'integer'],
             'reason_fail'    => ['nullable', 'string', 'max:500'],
             'total_arrange'  => ['nullable', 'integer'],
+            'products'       => ['nullable', 'string'], // JSON string
         ], [
             'day.required'          => 'Ngày nhập hàng là bắt buộc',
             'name_arrange.required' => 'Tên lô hàng là bắt buộc',
@@ -118,7 +120,7 @@ class NhapHangController extends Controller
 
     public function getArrange(Arrange $arrange)
     {
-        $arrange->load('saleUser', 'user', 'supportUser', 'part', 'team');
+        $arrange->load('saleUser', 'user', 'supportUser', 'part', 'team', 'shipments.products');
         return response()->json($arrange);
     }
 
