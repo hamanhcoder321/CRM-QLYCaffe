@@ -1,9 +1,12 @@
  <!-- Main Footer -->
-  <footer class="main-footer">
-    <strong>Copyright &copy; 2026-2030 <a href="https://cafe.com">caffe.com</a>.</strong>
-    All rights reserved.
+  <footer class="main-footer" style="background:#fff;border-top:1px solid #f3f4f6;color:#9ca3af;font-size:0.82rem;padding:12px 24px">
+    <span style="color:#d1d5db">© 2026 <strong style="color:#7c3aed">M&T Cafe CRM</strong> — Hệ thống quản lý chuỗi cửa hàng</span>
+    <span class="float-right d-none d-sm-inline-block" style="color:#d1d5db">
+      {{ now()->format('H:i — d/m/Y') }}
+    </span>
   </footer>
 </div>
+
 <!-- ./wrapper -->
 
 <!-- REQUIRED SCRIPTS -->

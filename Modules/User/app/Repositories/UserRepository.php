@@ -122,27 +122,24 @@ class UserRepository implements UserRepositoryInterface{
     }
 
     public function formOptions(): array{
-        if (!\App\Models\Team::where('name', 'Ca Tối')->exists()) {
-            \App\Models\Team::create(['name' => 'Ca Tối']);
+        // Đảm bảo 3 ca làm việc luôn tồn tại trong DB
+        foreach (['Ca Sáng', 'Ca Chiều', 'Ca Tối'] as $caName) {
+            \App\Models\Team::firstOrCreate(['name' => $caName]);
         }
+
         return [
             'part'   => \App\Models\Part::select('id', 'name as text')->orderBy('name')->get(),
             'position' => \App\Models\Position::select('id', 'name as text')->orderBy('name')->get(),
-            'team'   => \App\Models\Team::select('id', 'name as text')->where('name', '!=', 'Ca Kho')->orderBy('name')->get(),
+            'ca'     => \App\Models\Team::select('id', 'name as text')->whereIn('name', ['Ca Sáng', 'Ca Chiều', 'Ca Tối'])->orderBy('name')->get(),
             'type_account' => \App\Models\Type_account::select('id', 'name as text')->orderBy('name')->get(),
             'branch' => \App\Models\Branch::select('id', 'name as text')->orderBy('name')->get(),
-
             'genders' => [
                 ['id' => 0, 'text' => 'nam'],
-                ['id' => 1, 'text' => 'nữ'],
-            ],
-            'type_work' => [
-                ['id' => 0, 'text' => 'Fulltime'],
-                ['id' => 1, 'text' => 'Parttime']
+                ['id' => 1, 'text' => 'nữ'],
             ],
             'status' => [
-                ['id' => 0, 'text' => 'Đang làm'],
-                ['id' => 1, 'text' => 'Đã nghỉ']
+                ['id' => 0, 'text' => 'Đang làm'],
+                ['id' => 1, 'text' => 'Đã nghỉ']
             ],
         ];
     }

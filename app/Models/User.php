@@ -119,35 +119,36 @@ class User extends Authenticatable
     /** Super Admin - Giám đốc toàn quyền các chi nhánh */
     public function isSuperAdmin(): bool
     {
-        return strtolower($this->getAccountTypeName()) === 'super admin' || strtolower($this->getPositionName()) === 'giám đốc';
+        $typeName = strtolower($this->getAccountTypeName());
+        return $typeName === 'super admin' || $typeName === 'giám đốc';
     }
 
     /** Admin - Quản lý chi nhánh */
     public function isAdmin(): bool
     {
-        return strtolower($this->getAccountTypeName()) === 'admin' || strtolower($this->getPositionName()) === 'quản lý chi nhánh';
+        $typeName = strtolower($this->getAccountTypeName());
+        return $typeName === 'admin' || $typeName === 'quản lý';
     }
 
     /** Kiểm tra xem có phải là cấp nhận lương cứng (Quản lý/Giám đốc) hay không */
     public function isManagerSalary(): bool
     {
-        $position = strtolower($this->getPositionName());
-        return str_contains($position, 'quản lý') || str_contains($position, 'giám đốc');
+        return $this->isAdmin() || $this->isSuperAdmin();
     }
 
     /** Scope lọc Quản lý/Giám đốc */
     public function scopeManagers($query)
     {
-        return $query->whereHas('position', function($q) {
-            $q->where('name', 'like', '%Quản lý%')->orWhere('name', 'like', '%Giám đốc%');
+        return $query->whereHas('typeAccount', function($q) {
+            $q->where('name', 'like', '%Quản lý%')->orWhere('name', 'like', '%Giám đốc%')->orWhere('name', 'like', '%Admin%')->orWhere('name', 'like', '%Super Admin%');
         });
     }
 
     /** Scope lọc Nhân viên thường */
     public function scopeStaff($query)
     {
-        return $query->whereDoesntHave('position', function($q) {
-            $q->where('name', 'like', '%Quản lý%')->orWhere('name', 'like', '%Giám đốc%');
+        return $query->whereHas('typeAccount', function($q) {
+            $q->where('name', 'like', '%Nhân viên%');
         });
     }
 

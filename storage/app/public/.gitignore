@@ -1,2 +1,11 @@
 *
 !.gitignore
+!drinks/
+drinks/*
+!drinks/.gitkeep
+!facilities/
+facilities/*
+!facilities/.gitkeep
+!products/
+products/*
+!products/.gitkeep

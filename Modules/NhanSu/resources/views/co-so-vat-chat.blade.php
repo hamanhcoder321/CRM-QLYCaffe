@@ -78,7 +78,7 @@
                 <td class="pl-3">{{ $index + 1 }}</td>
                 <td>
                   @if($fac->image)
-                    <img src="{{ asset('storage/' . $fac->image) }}" alt="{{ $fac->name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                    <img src="{{ asset('uploads/' . $fac->image) }}" alt="{{ $fac->name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
                   @else
                     <div style="width: 50px; height: 50px; background: #e9ecef; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #adb5bd;">
                       <i class="fas fa-image"></i>
@@ -226,7 +226,7 @@ $(document).ready(function() {
             $('#fac-day').val(res.day ? res.day.split(' ')[0] : '');
             $('#fac-note').val(res.note);
             if (res.image) {
-                $('#image-preview').html(`<img src="/storage/${res.image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`);
+                $('#image-preview').html(`<img src="/uploads/${res.image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`);
             } else {
                 $('#image-preview').html('<i class="fas fa-camera text-muted fa-2x"></i>');
             }

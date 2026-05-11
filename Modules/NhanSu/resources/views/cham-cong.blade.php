@@ -22,8 +22,24 @@
   <div class="content">
     <div class="container-fluid">
       <div class="card shadow-sm">
-        <div class="card-header border-0 d-flex justify-content-between align-items-center">
-          <h3 class="card-title font-weight-bold mb-0"><i class="fas fa-users mr-2 text-primary"></i>Danh sách Nhân sự (Ngày: {{ date('d/m/Y') }})</h3>
+        <div class="card-header border-0">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h3 class="card-title font-weight-bold mb-0"><i class="fas fa-users mr-2 text-primary"></i>Danh sách Nhân sự (Ngày: {{ date('d/m/Y') }})</h3>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge badge-info px-3 py-2" style="font-size:12px">
+                <i class="fas fa-sun mr-1"></i> Ca Sáng: <strong>4h/ca</strong>
+              </span>
+              <span class="badge badge-warning px-3 py-2" style="font-size:12px">
+                <i class="fas fa-cloud-sun mr-1"></i> Ca Chiều: <strong>4h/ca</strong>
+              </span>
+              <span class="badge badge-dark px-3 py-2" style="font-size:12px">
+                <i class="fas fa-moon mr-1"></i> Ca Tối: <strong>4h/ca</strong>
+              </span>
+              <span class="badge badge-success px-3 py-2" style="font-size:12px">
+                <i class="fas fa-building mr-1"></i> Quản lý: <strong>8h/ngày</strong>
+              </span>
+            </div>
+          </div>
         </div>
         <div class="card-body table-responsive p-0">
           <table class="table table-hover table-striped mb-0 text-sm">
@@ -167,7 +183,8 @@ $(document).ready(function() {
             $('#admin-section').hide();
             $('#staff-section').show();
             $('#tk-shift').val('Sáng');
-            $('#tk-hour').val('4');
+            autoFillHours($('#tk-shift').val());
+            $('#tk-hour').val('');
             $('#tk-note-staff').val('');
         }
 
@@ -223,6 +240,16 @@ $(document).ready(function() {
                 Swal.fire('Lỗi', err, 'error');
             }
         });
+    });
+    // Tự động điền số giờ theo ca
+    function autoFillHours(shift) {
+        const hours = { 'Sáng': 4, 'Chiều': 4, 'Tối': 4 };
+        $('#tk-hour').val(hours[shift] || 4);
+    }
+
+    // Khi đổi ca thì tự cập nhật số giờ
+    $('#tk-shift').on('change', function() {
+        autoFillHours($(this).val());
     });
 });
 </script>

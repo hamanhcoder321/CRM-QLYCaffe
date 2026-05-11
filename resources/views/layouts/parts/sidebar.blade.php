@@ -1,19 +1,22 @@
-<!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-primary elevation-4">
+<!-- Main Sidebar -->
+<aside class="main-sidebar elevation-0" style="
+  background: linear-gradient(180deg, #1a1f2e 0%, #1e2435 60%, #171c29 100%);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+">
   @php
     $user = auth()->user();
     $user?->loadMissing('part', 'typeAccount', 'branch');
 
     $isDashboard  = request()->is('dashboard');
-    $isFinance    = request()->is('finance*') || request()->is('salary*') || request()->is('expenses*');
+    $isFinance    = request()->is('finance*') || request()->is('salary*') || request()->is('expenses*') || request()->is('tai-chinh*');
     $isPurchasing = request()->is('arranges*') || request()->is('shipments*') || request()->is('customers*') || request()->is('nhap-hang*');
     $isSales      = request()->is('ban-hang*') || request()->is('sales*');
     $isHr         = request()->is('recruitments*') || request()->is('facilities*') || request()->is('timesheets*') || request()->is('tuyen-dung*') || request()->is('*cham-cong*');
     $isConfig     = request()->is('salary-mechanism*') || request()->is('settings*');
     $isAccount    = request()->is('users') || request()->is('account') || request()->is('chi-nhanh*');
 
-    // Phân quyền
-    $hasNoRole    = !$user?->typeAccount && !$user?->part; // user chưa cấu hình role → mặc định thấy hết
+    $hasNoRole    = !$user?->typeAccount && !$user?->part;
     $canWarehouse = $hasNoRole || ($user?->canAccessWarehouse() ?? false);
     $canSales     = $hasNoRole || ($user?->canAccessSales()     ?? false);
     $canFinance   = $hasNoRole || ($user?->isSuperAdminOrAdmin() ?? false);
@@ -22,262 +25,357 @@
   @endphp
 
   <!-- Brand Logo -->
-  <a href="/" class="brand-link d-flex align-items-center">
-    <img
-      src="{{ asset('Adminlte/dist/img/logo coffe M&T.jpg') }}"
-      alt="CRM Chuỗi Cafe"
-      class="brand-image img-circle elevation-3"
-      style="opacity: .9"
-    >
-    <div class="d-flex flex-column">
-      <span class="brand-text font-weight-semibold">CRM Chuỗi Cafe</span>
-      @if($user?->branch)
-        <small class="text-light" style="font-size: 11px; letter-spacing: .5px;">
-          {{ $user->branch->name }}
-        </small>
-      @else
-        <small class="text-light" style="font-size: 11px; letter-spacing: .5px;">Quản trị vận hành</small>
-      @endif
+  <a href="/dashboard" class="brand-link d-flex align-items-center px-3 py-3" style="
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    text-decoration: none;
+    background: rgba(255,255,255,0.02);
+  ">
+    <div style="
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(124,58,237,0.4);
+    ">
+      <i class="fas fa-coffee text-white" style="font-size: 0.9rem"></i>
+    </div>
+    <div class="ml-2">
+      <div style="color:#fff;font-weight:700;font-size:0.95rem;line-height:1.2">M&T Cafe</div>
+      <div style="color:rgba(255,255,255,0.4);font-size:0.7rem">
+        @if($user?->branch){{ Str::limit($user->branch->name, 22) }}@else Hệ thống CRM @endif
+      </div>
     </div>
   </a>
 
   <!-- Sidebar -->
-  <div class="sidebar">
-    <!-- Sidebar user panel -->
-    <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center border-bottom border-secondary">
-      <div class="image">
-        <img src="{{ asset('Adminlte/dist/img/user2-160x160.jpg') }}" class="img-circle elevation-2" alt="User Image">
-      </div>
-      <div class="info">
-        <a href="/dashboard" class="d-block font-weight-semibold">{{ $user?->name ?? 'Hệ thống quản trị' }}</a>
-        <small class="text-muted">
-          {{ $user?->isSuperAdmin() ? 'Ban Giám Đốc' : ($user?->isAdmin() ? 'Quản lý chi nhánh' : ($user?->getPartName() ?: 'Chuỗi cửa hàng cafe')) }}
-          @if($user?->isSuperAdmin()) <span class="badge badge-danger ml-1" style="font-size:9px">S.Admin</span>
-          @elseif($user?->isAdmin()) <span class="badge badge-warning ml-1" style="font-size:9px">Admin</span>
-          @endif
-        </small>
-      </div>
-    </div>
+  <div class="sidebar" style="overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
 
-    <!-- SidebarSearch Form -->
-    <div class="form-inline mb-2">
-      <div class="input-group" data-widget="sidebar-search">
-        <input class="form-control form-control-sidebar" type="search" placeholder="Tìm nhanh..." aria-label="Search">
-        <div class="input-group-append">
-          <button class="btn btn-sidebar" type="button">
-            <i class="fas fa-search fa-fw"></i>
-          </button>
+    <!-- User panel -->
+    <div class="mx-3 my-3 p-3" style="
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+    ">
+      <div class="d-flex align-items-center gap-2">
+        <div style="
+          width: 40px; height: 40px;
+          background: linear-gradient(135deg, #7c3aed, #2563eb);
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          color: #fff; font-weight: 700; font-size: 0.9rem;
+          flex-shrink: 0;
+        ">{{ strtoupper(substr($user?->name ?? 'U', 0, 2)) }}</div>
+        <div style="min-width:0">
+          <div style="color:#fff;font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            {{ Str::limit($user?->name ?? 'Hệ thống', 20) }}
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;margin-top:2px">
+            @if($user?->isSuperAdmin())
+              <span style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);border-radius:5px;padding:1px 7px;font-size:0.65rem;font-weight:600">S.ADMIN</span>
+            @elseif($user?->isAdmin())
+              <span style="background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.25);border-radius:5px;padding:1px 7px;font-size:0.65rem;font-weight:600">ADMIN</span>
+            @else
+              <span style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.25);border-radius:5px;padding:1px 7px;font-size:0.65rem;font-weight:600">NHÂN VIÊN</span>
+            @endif
+            <span style="color:rgba(255,255,255,0.35);font-size:0.7rem">{{ $user?->getPartName() ?: '' }}</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Sidebar Menu -->
-    <nav class="mt-2">
-      <ul class="nav nav-pills nav-sidebar flex-column text-sm" data-widget="treeview" role="menu" data-accordion="false">
-        <li class="nav-header text-uppercase">Điều hướng</li>
+    <nav class="px-2">
+      <style>
+        /* Sidebar nav styles */
+        .sidebar-nav-label {
+          color: rgba(255,255,255,0.3);
+          font-size: 0.65rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          padding: 12px 10px 4px;
+          display: block;
+        }
+        .sidebar-nav-item { list-style: none; margin-bottom: 2px; }
+        .sidebar-nav-link {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 9px 12px;
+          border-radius: 10px;
+          color: rgba(255,255,255,0.65) !important;
+          font-size: 0.86rem;
+          font-weight: 500;
+          text-decoration: none !important;
+          transition: all 0.18s ease;
+          position: relative;
+        }
+        .sidebar-nav-link:hover {
+          background: rgba(255,255,255,0.07) !important;
+          color: rgba(255,255,255,0.95) !important;
+        }
+        .sidebar-nav-link.active-link {
+          background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(79,70,229,0.15)) !important;
+          color: #fff !important;
+          border: 1px solid rgba(124,58,237,0.3);
+        }
+        .sidebar-nav-link.active-link .sidebar-nav-icon {
+          color: #a78bfa !important;
+        }
+        .sidebar-nav-icon {
+          width: 18px;
+          text-align: center;
+          font-size: 0.88rem;
+          color: rgba(255,255,255,0.45);
+          flex-shrink: 0;
+          transition: color 0.18s;
+        }
+        .sidebar-nav-link:hover .sidebar-nav-icon { color: rgba(255,255,255,0.8); }
+        .sidebar-arrow {
+          margin-left: auto;
+          font-size: 0.7rem;
+          color: rgba(255,255,255,0.3);
+          transition: transform 0.2s;
+        }
+        /* Submenu */
+        .sidebar-submenu {
+          list-style: none;
+          padding: 2px 0 2px 30px;
+          margin: 0;
+          overflow: hidden;
+          display: none;
+        }
+        .sidebar-submenu.open { display: block; }
+        .sidebar-submenu-link {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 7px 10px;
+          border-radius: 8px;
+          color: rgba(255,255,255,0.5) !important;
+          font-size: 0.82rem;
+          font-weight: 400;
+          text-decoration: none !important;
+          transition: all 0.15s;
+          margin-bottom: 1px;
+        }
+        .sidebar-submenu-link:hover {
+          color: rgba(255,255,255,0.9) !important;
+          background: rgba(255,255,255,0.05);
+        }
+        .sidebar-submenu-link.active-sub {
+          color: #a78bfa !important;
+          background: rgba(124,58,237,0.12);
+        }
+        .submenu-dot {
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.25);
+          flex-shrink: 0;
+        }
+        .active-sub .submenu-dot { background: #a78bfa; }
+        /* Group with arrow open */
+        .sidebar-group.is-open > .sidebar-nav-link { color: #fff !important; background: rgba(255,255,255,0.05) !important; }
+        .sidebar-group.is-open > .sidebar-nav-link .sidebar-arrow { transform: rotate(-90deg); }
+        .sidebar-divider { border-top: 1px solid rgba(255,255,255,0.05); margin: 8px 0; }
+      </style>
 
+      <ul style="list-style:none;padding:0;margin:0">
+
+        {{-- ĐIỀU HƯỚNG --}}
         @if($isAdminOrMgr)
-        <li class="nav-item">
-          <a href="/dashboard" class="nav-link {{ $isDashboard ? 'active' : '' }}">
-            <i class="nav-icon fas fa-chart-line"></i>
-            <p>Tổng quan</p>
+        <li><span class="sidebar-nav-label">Điều hướng</span></li>
+        <li class="sidebar-nav-item">
+          <a href="/dashboard" class="sidebar-nav-link {{ $isDashboard ? 'active-link' : '' }}">
+            <i class="fas fa-chart-line sidebar-nav-icon"></i>
+            <span>Tổng quan</span>
           </a>
         </li>
         @endif
 
-        <li class="nav-header text-uppercase">Nghiệp vụ</li>
+        {{-- NGHIỆP VỤ --}}
+        <li><span class="sidebar-nav-label">Nghiệp vụ</span></li>
 
-        {{-- TÀI CHÍNH - chỉ Admin/Quản lý/Kế toán --}}
+        {{-- TÀI CHÍNH --}}
         @if($canFinance)
-        <li class="nav-item {{ $isFinance ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ $isFinance ? 'active' : '' }}">
-            <i class="nav-icon fas fa-wallet"></i>
-            <p>
-              Tài chính
-              <i class="right fas fa-angle-left"></i>
-            </p>
+        <li class="sidebar-nav-item sidebar-group {{ $isFinance ? 'is-open' : '' }}">
+          <a href="#" class="sidebar-nav-link {{ $isFinance ? 'active-link' : '' }}" data-toggle-group>
+            <i class="fas fa-wallet sidebar-nav-icon"></i>
+            <span>Tài chính</span>
+            <i class="fas fa-angle-left sidebar-arrow"></i>
           </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="{{ route('taichinh.quyet-toan') }}" class="nav-link {{ request()->is('tai-chinh/quyet-toan*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Bảng quyết toán</p>
-              </a>
-            </li>
-            <!-- <li class="nav-item">
-              <a href="{{ route('quanlychitieu.index') }}" class="nav-link {{ request()->is('quan-ly-chi-tieu*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Quản lý chi tiêu</p>
-              </a>
-            </li> -->
+          <ul class="sidebar-submenu {{ $isFinance ? 'open' : '' }}">
+            <li><a href="{{ route('taichinh.quyet-toan') }}" class="sidebar-submenu-link {{ request()->is('tai-chinh*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Bảng quyết toán
+            </a></li>
           </ul>
         </li>
         @endif
 
-        {{-- NHẬP HÀNG - Kho/Vận hành/Admin/Quản lý --}}
+        {{-- NHẬP HÀNG --}}
         @if($canWarehouse)
-        <li class="nav-item {{ $isPurchasing ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ $isPurchasing ? 'active' : '' }}">
-            <i class="nav-icon fas fa-truck-loading"></i>
-            <p>
-              Nhập hàng
-              <i class="right fas fa-angle-left"></i>
-            </p>
+        <li class="sidebar-nav-item sidebar-group {{ $isPurchasing ? 'is-open' : '' }}">
+          <a href="#" class="sidebar-nav-link {{ $isPurchasing ? 'active-link' : '' }}" data-toggle-group>
+            <i class="fas fa-truck-loading sidebar-nav-icon"></i>
+            <span>Nhập hàng</span>
+            <i class="fas fa-angle-left sidebar-arrow"></i>
           </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="{{ route('nhaphang.list') }}" class="nav-link {{ request()->is('nhap-hang') || request()->is('nhap-hang/') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Xếp lô hàng</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ route('nhaphang.don-nhap') }}" class="nav-link {{ request()->is('nhap-hang/don-nhap*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Quản lý đơn nhập</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ route('nhaphang.nha-cung-cap') }}" class="nav-link {{ request()->is('nhap-hang/nha-cung-cap*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Nhà cung cấp</p>
-              </a>
-            </li>
+          <ul class="sidebar-submenu {{ $isPurchasing ? 'open' : '' }}">
+            <li><a href="{{ route('nhaphang.list') }}" class="sidebar-submenu-link {{ request()->is('nhap-hang') || request()->is('nhap-hang/') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Xếp lô hàng
+            </a></li>
+            <li><a href="{{ route('nhaphang.don-nhap') }}" class="sidebar-submenu-link {{ request()->is('nhap-hang/don-nhap*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Quản lý đơn nhập
+            </a></li>
+            <li><a href="{{ route('nhaphang.nha-cung-cap') }}" class="sidebar-submenu-link {{ request()->is('nhap-hang/nha-cung-cap*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Nhà cung cấp
+            </a></li>
           </ul>
         </li>
         @endif
 
-        {{-- BÁN HÀNG - Kinh doanh/Sale/Admin/Quản lý --}}
+        {{-- BÁN HÀNG --}}
         @if($canSales)
-        <li class="nav-item {{ $isSales ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ $isSales ? 'active' : '' }}">
-            <i class="nav-icon fas fa-cash-register"></i>
-            <p>
-              Bán hàng
-              <i class="right fas fa-angle-left"></i>
-            </p>
+        <li class="sidebar-nav-item sidebar-group {{ $isSales ? 'is-open' : '' }}">
+          <a href="#" class="sidebar-nav-link {{ $isSales ? 'active-link' : '' }}" data-toggle-group>
+            <i class="fas fa-cash-register sidebar-nav-icon"></i>
+            <span>Bán hàng</span>
+            <i class="fas fa-angle-left sidebar-arrow"></i>
           </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="{{ route('banhang.thuc-don') }}" class="nav-link {{ request()->is('ban-hang/thuc-don*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Thực đơn / Menu</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ route('banhang.ton-kho') }}" class="nav-link {{ request()->is('ban-hang/ton-kho*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Kho nguyên liệu</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ route('banhang.giao-dich') }}" class="nav-link {{ request()->is('ban-hang/giao-dich*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Giao dịch bán hàng</p>
-              </a>
-            </li>
+          <ul class="sidebar-submenu {{ $isSales ? 'open' : '' }}">
+            <li><a href="{{ route('banhang.thuc-don') }}" class="sidebar-submenu-link {{ request()->is('ban-hang/thuc-don*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Thực đơn / Menu
+            </a></li>
+            <li><a href="{{ route('banhang.ton-kho') }}" class="sidebar-submenu-link {{ request()->is('ban-hang/ton-kho*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Kho nguyên liệu
+            </a></li>
+            <li><a href="{{ route('banhang.giao-dich') }}" class="sidebar-submenu-link {{ request()->is('ban-hang/giao-dich*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Giao dịch bán hàng
+            </a></li>
           </ul>
         </li>
         @endif
 
-        {{-- NHÂN SỰ - HR/Admin/Quản lý & Chấm công cho tất cả --}}
-        <li class="nav-item {{ $isHr ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ $isHr ? 'active' : '' }}">
-            <i class="nav-icon fas fa-users-cog"></i>
-            <p>
-              Nhân sự
-              <i class="right fas fa-angle-left"></i>
-            </p>
+        {{-- NHÂN SỰ --}}
+        <li class="sidebar-nav-item sidebar-group {{ $isHr ? 'is-open' : '' }}">
+          <a href="#" class="sidebar-nav-link {{ $isHr ? 'active-link' : '' }}" data-toggle-group>
+            <i class="fas fa-users-cog sidebar-nav-icon"></i>
+            <span>Nhân sự</span>
+            <i class="fas fa-angle-left sidebar-arrow"></i>
           </a>
-          <ul class="nav nav-treeview">
+          <ul class="sidebar-submenu {{ $isHr ? 'open' : '' }}">
             @if($canHR)
-            <li class="nav-item">
-              <a href="{{ route('tuyendung.list') }}" class="nav-link {{ request()->is('tuyen-dung') || (request()->is('tuyen-dung/*') && !request()->is('tuyen-dung/applications*')) ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Tuyển dụng</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ route('tuyendung.applications.list') }}" class="nav-link {{ request()->is('tuyen-dung/applications*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Danh sách ứng tuyển</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="{{ route('nhansu.facilities') }}" class="nav-link {{ request()->is('facilities*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Cơ sở vật chất</p>
-              </a>
-            </li>
+            <li><a href="{{ route('tuyendung.list') }}" class="sidebar-submenu-link {{ request()->is('tuyen-dung') || (request()->is('tuyen-dung/*') && !request()->is('tuyen-dung/applications*')) ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Tuyển dụng
+            </a></li>
+            <li><a href="{{ route('tuyendung.applications.list') }}" class="sidebar-submenu-link {{ request()->is('tuyen-dung/applications*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Danh sách ứng tuyển
+            </a></li>
+            <li><a href="{{ route('nhansu.facilities') }}" class="sidebar-submenu-link {{ request()->is('facilities*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Cơ sở vật chất
+            </a></li>
             @endif
-            <li class="nav-item">
-              <a href="{{ route('nhansu.cham-cong') }}" class="nav-link {{ request()->is('*cham-cong*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Chấm công</p>
-              </a>
-            </li>
+            <li><a href="{{ route('nhansu.cham-cong') }}" class="sidebar-submenu-link {{ request()->is('*cham-cong*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Chấm công
+            </a></li>
           </ul>
         </li>
 
-        {{-- HỆ THỐNG - chỉ Admin/Quản lý --}}
+        {{-- HỆ THỐNG --}}
         @if($isAdminOrMgr)
-        <li class="nav-header text-uppercase">Hệ thống</li>
+        <li><div class="sidebar-divider"></div></li>
+        <li><span class="sidebar-nav-label">Hệ thống</span></li>
 
-        <li class="nav-item {{ request()->is('chi-nhanh*') ? 'active' : '' }}">
-          <a href="{{ route('branches.list') }}" class="nav-link {{ request()->is('chi-nhanh*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-store-alt"></i>
-            <p>Chi nhánh</p>
+        <li class="sidebar-nav-item">
+          <a href="{{ route('branches.list') }}" class="sidebar-nav-link {{ request()->is('chi-nhanh*') ? 'active-link' : '' }}">
+            <i class="fas fa-store-alt sidebar-nav-icon"></i>
+            <span>Chi nhánh</span>
           </a>
         </li>
 
-        <li class="nav-item {{ $isConfig ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ $isConfig ? 'active' : '' }}">
-            <i class="nav-icon fas fa-sliders-h"></i>
-            <p>
-              Cấu hình
-              <i class="right fas fa-angle-left"></i>
-            </p>
+        <li class="sidebar-nav-item sidebar-group {{ $isConfig ? 'is-open' : '' }}">
+          <a href="#" class="sidebar-nav-link {{ $isConfig ? 'active-link' : '' }}" data-toggle-group>
+            <i class="fas fa-sliders-h sidebar-nav-icon"></i>
+            <span>Cấu hình</span>
+            <i class="fas fa-angle-left sidebar-arrow"></i>
           </a>
-          <ul class="nav nav-treeview">
+          <ul class="sidebar-submenu {{ $isConfig ? 'open' : '' }}">
             @if($user?->isSuperAdmin())
-            <li class="nav-item">
-              <a href="{{ route('cocheluong.index') }}" class="nav-link {{ request()->is('salary-mechanism*') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Cơ chế lương</p>
-              </a>
-            </li>
+            <li><a href="{{ route('cocheluong.index') }}" class="sidebar-submenu-link {{ request()->is('salary-mechanism*') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Cơ chế lương
+            </a></li>
             @endif
           </ul>
         </li>
 
-        <li class="nav-item {{ $isAccount ? 'menu-open' : '' }}">
-          <a href="#" class="nav-link {{ $isAccount ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user-shield"></i>
-            <p>
-              Tài khoản
-              <i class="right fas fa-angle-left"></i>
-            </p>
+        <li class="sidebar-nav-item sidebar-group {{ $isAccount ? 'is-open' : '' }}">
+          <a href="#" class="sidebar-nav-link {{ $isAccount ? 'active-link' : '' }}" data-toggle-group>
+            <i class="fas fa-user-shield sidebar-nav-icon"></i>
+            <span>Tài khoản</span>
+            <i class="fas fa-angle-left sidebar-arrow"></i>
           </a>
-          <ul class="nav nav-treeview">
-            <li class="nav-item">
-              <a href="/account" class="nav-link {{ request()->is('account') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Hệ thống tài khoản</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="/users" class="nav-link {{ request()->is('users') ? 'active' : '' }}">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Danh sách nhân sự</p>
-              </a>
-            </li>
+          <ul class="sidebar-submenu {{ $isAccount ? 'open' : '' }}">
+            <li><a href="/account" class="sidebar-submenu-link {{ request()->is('account') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Hệ thống tài khoản
+            </a></li>
+            <li><a href="/users" class="sidebar-submenu-link {{ request()->is('users') ? 'active-sub' : '' }}">
+              <span class="submenu-dot"></span>Danh sách nhân sự
+            </a></li>
           </ul>
         </li>
         @endif
+
+        <!-- {{-- AI --}}
+        <li><div class="sidebar-divider"></div></li>
+        <li class="sidebar-nav-item">
+          <a href="#" class="sidebar-nav-link" id="open-ai-chat" style="
+            background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(79,70,229,0.1));
+            border: 1px solid rgba(124,58,237,0.2);
+          ">
+            <i class="fas fa-robot sidebar-nav-icon" style="color:#a78bfa"></i>
+            <span style="color:#c4b5fd">Trợ lý AI</span>
+            <span style="margin-left:auto;background:rgba(124,58,237,0.3);color:#a78bfa;border-radius:5px;padding:1px 7px;font-size:0.65rem;font-weight:700">BETA</span>
+          </a>
+        </li> -->
 
       </ul>
     </nav>
-    <!-- /.sidebar-menu -->
   </div>
-  <!-- /.sidebar -->
+
+  <script>
+    // Toggle submenu groups
+    document.querySelectorAll('[data-toggle-group]').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var group = this.closest('.sidebar-group');
+        var submenu = group.querySelector('.sidebar-submenu');
+        var isOpen = group.classList.contains('is-open');
+        // Close all others
+        document.querySelectorAll('.sidebar-group.is-open').forEach(function(g) {
+          if (g !== group) {
+            g.classList.remove('is-open');
+            g.querySelector('.sidebar-submenu').style.display = 'none';
+            g.querySelector('.sidebar-submenu').classList.remove('open');
+          }
+        });
+        if (isOpen) {
+          group.classList.remove('is-open');
+          submenu.style.display = 'none';
+        } else {
+          group.classList.add('is-open');
+          submenu.style.display = 'block';
+        }
+      });
+    });
+    // Open AI chat
+    var aiBtn = document.getElementById('open-ai-chat');
+    if (aiBtn) {
+      aiBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var chat = document.getElementById('ai-chat-widget');
+        if (chat) chat.style.display = chat.style.display === 'none' ? 'flex' : 'none';
+      });
+    }
+  </script>
 </aside>

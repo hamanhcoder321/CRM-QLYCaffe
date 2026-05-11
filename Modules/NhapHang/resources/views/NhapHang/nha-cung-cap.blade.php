@@ -36,7 +36,6 @@
                                         <th>Tình trạng</th>
                                         <th>Quy mô</th>
                                         <th>Tiềm năng</th>
-                                        <th>Số đơn</th>
                                         <th>Ghi chú</th>
                                         <th>Tác vụ</th>
                                     </tr>
@@ -57,7 +56,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalNCCLabel">Thêm nhà cung cấp</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="form-ncc" novalidate>
@@ -116,9 +117,11 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+                    <i class="fas fa-times mr-1"></i>Hủy
+                </button>
                 <button type="button" class="btn btn-primary btn-sm" id="btn-save-ncc">
-                    <i class="fas fa-save"></i> Lưu
+                    <i class="fas fa-save mr-1"></i>Lưu
                 </button>
             </div>
         </div>
@@ -163,7 +166,6 @@ $(function () {
             { data: 'classify',      name: 'classify',      searchable: false },
             { data: 'scale',         name: 'scale',         searchable: false },
             { data: 'potentical',    name: 'potentical',    searchable: false },
-            { data: 'shipments_count', name: 'shipments_count', searchable: false },
             { data: 'note',          name: 'note',          searchable: false },
             { data: 'action',        name: 'action',        orderable: false, searchable: false },
         ],

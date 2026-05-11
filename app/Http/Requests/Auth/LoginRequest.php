@@ -50,6 +50,16 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Kiểm tra trạng thái nhân viên - status=1 là đã nghỉ việc
+        $user = Auth::user();
+        if ($user && $user->status == 1) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey(), 60);
+            throw ValidationException::withMessages([
+                'email' => 'Tài khoản này đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

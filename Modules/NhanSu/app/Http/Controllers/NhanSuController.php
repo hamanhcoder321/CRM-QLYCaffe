@@ -34,7 +34,7 @@ class NhanSuController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('facilities', 'public');
+            $imagePath = $request->file('image')->store('facilities', 'uploads');
         }
 
         Facilicity::create([
@@ -79,9 +79,9 @@ class NhanSuController extends Controller
         if ($request->hasFile('image')) {
             // Xoá ảnh cũ nếu có
             if ($facility->image) {
-                Storage::disk('public')->delete($facility->image);
+                Storage::disk('uploads')->delete($facility->image);
             }
-            $data['image'] = $request->file('image')->store('facilities', 'public');
+            $data['image'] = $request->file('image')->store('facilities', 'uploads');
         }
 
         $facility->update($data);
@@ -93,7 +93,7 @@ class NhanSuController extends Controller
     {
         $facility = Facilicity::findOrFail($id);
         if ($facility->image) {
-            Storage::disk('public')->delete($facility->image);
+            Storage::disk('uploads')->delete($facility->image);
         }
         $facility->delete();
 

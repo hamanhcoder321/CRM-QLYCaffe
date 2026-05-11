@@ -139,6 +139,80 @@ ROUTE: GET / → home.index
 
         footer { background: var(--cafe-dark); color: rgba(255, 255, 255, 0.7); text-align: center; padding: 32px 60px; font-size: 14px; }
         footer strong { color: var(--white); }
+
+        /* ===== BẢN ĐỒ CHI NHÁNH ===== */
+        .branches { background: var(--white); }
+        .branches-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .branch-card {
+            background: #fff;
+            border: 1px solid rgba(111, 78, 55, 0.12);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(61, 43, 31, 0.08);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .branch-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(61, 43, 31, 0.15);
+        }
+        .branch-map {
+            width: 100%;
+            height: 240px;
+            border: none;
+            display: block;
+        }
+        .branch-info {
+            padding: 20px 24px;
+        }
+        .branch-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--cafe-dark);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .branch-name i { color: var(--cafe-brown); font-size: 16px; }
+        .branch-address {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            line-height: 1.6;
+        }
+        .branch-address i { color: var(--cafe-gold); margin-top: 3px; flex-shrink: 0; }
+        .branch-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+        .branch-meta span { display: flex; align-items: center; gap: 5px; }
+        .branch-meta i { color: var(--cafe-brown); }
+        .branch-badge {
+            display: inline-block;
+            background: var(--cafe-light);
+            color: var(--cafe-brown);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        @media (max-width: 900px) {
+            .branches-grid { grid-template-columns: 1fr; }
+        }
+
         
         .btn-apply {
             display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -315,7 +389,7 @@ ROUTE: GET / → home.index
                 @foreach($drinks as $drink)
                     <div class="menu-card reveal delay-{{ min($loop->iteration, 6) }}">
                         @if($drink->image)
-                            <img src="{{ asset('storage/' . $drink->image) }}" alt="{{ $drink->name }}" class="menu-image">
+                            <img src="{{ asset('uploads/' . $drink->image) }}" alt="{{ $drink->name }}" class="menu-image">
                         @else
                             <div class="menu-image">
                                 <i class="fas fa-coffee"></i>
@@ -406,6 +480,69 @@ ROUTE: GET / → home.index
                 <div class="step-number">3</div>
                 <h3>Quản lý</h3>
                 <p>Nhân sự, doanh thu, kho hàng — tất cả trực quan trên Dashboard.</p>
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== BẢN ĐỒ 2 CHI NHÁNH ===== --}}
+    <section class="branches">
+        <div class="section-header">
+            <span class="section-badge reveal">📍 Vị trí</span>
+            <h2 class="section-title reveal">Hệ thống chi nhánh M&T Cafe</h2>
+            <p class="section-sub reveal">Tìm chúng tôi tại 2 địa điểm — tiện lợi, gần gũi với bạn.</p>
+        </div>
+
+        <div class="branches-grid">
+            {{-- Chi nhánh Tây Mỗ --}}
+            <div class="branch-card reveal delay-1">
+                <iframe
+                    class="branch-map"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.8945823420896!2d105.74127931536827!3d21.01035919417978!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135abc6f9a63e23%3A0x8d2498e0a96c3c10!2zVMOieSBN4buXLCBOYW0gVOG7qyBMacOqbSwgSMOgIE7hu5lp!5e0!3m2!1svi!2svn!4v1715000100000!5m2!1svi!2svn"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+                <div class="branch-info">
+                    <div class="branch-name">
+                        <i class="fas fa-store"></i>
+                        Chi nhánh Tây Mỗ
+                        <span class="branch-badge">Cơ sở chính</span>
+                    </div>
+                    <div class="branch-address">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Phường Tây Mỗ, Quận Nam Từ Liêm, Hà Nội</span>
+                    </div>
+                    <div class="branch-meta">
+                        <span><i class="fas fa-clock"></i> 07:00 – 22:00</span>
+                        <span><i class="fas fa-phone"></i> 0901 234 567</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Chi nhánh Mỹ Đình --}}
+            <div class="branch-card reveal delay-2">
+                <iframe
+                    class="branch-map"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.1865624316284!2d105.77464931536876!3d21.028160394223424!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab5f50e040b1%3A0x3b6faba7ace28dd9!2zTXkgRGluaCwgTmFtIFThu6sgTGnDqm0sIEjDoCBO4buZaQ!5e0!3m2!1svi!2svn!4v1715000200000!5m2!1svi!2svn"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+                <div class="branch-info">
+                    <div class="branch-name">
+                        <i class="fas fa-store"></i>
+                        Chi nhánh Mỹ Đình
+                        <span class="branch-badge" style="background:#e0f2fe;color:#0369a1;">Mới mở</span>
+                    </div>
+                    <div class="branch-address">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Mỹ Đình, Quận Nam Từ Liêm, Hà Nội</span>
+                    </div>
+                    <div class="branch-meta">
+                        <span><i class="fas fa-clock"></i> 07:00 – 23:00</span>
+                        <span><i class="fas fa-phone"></i> 0901 234 890</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

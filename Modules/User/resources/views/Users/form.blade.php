@@ -217,21 +217,7 @@
                     @error('part')<div class="text-danger small"><i class="fas fa-exclamation-circle"></i>
                     {{ $message }}</div>@enderror
                 </div>
-                <div class="col-md-3 form-group">
-                    <label for="team">Đội nhóm</label>
-                    <select name="team" id="team" class="form-control form-select">
-                        <option value="">-- Chọn đội nhóm --</option>
-                        @if(isset($option['team']))
-                            @foreach($option['team'] as $items)
-                                <option value="{{ $items['id'] }}" {{ ($items['id'] == old('team', $user->team_id ?? '')) ? 'selected' : '' }}>
-                                    {{ $items['text'] }}
-                                </option>
-                            @endforeach
-                        @endif
-                    </select>
-                    @error('team')<div class="text-danger small"><i class="fas fa-exclamation-circle"></i>
-                    {{ $message }}</div>@enderror
-                </div>
+
                 <div class="col-md-3 form-group">
                     <label for="position">Vị trí</label>
                     <select name="position" id="position" class="form-control form-select">
@@ -247,19 +233,19 @@
                     @error('position')<div class="text-danger small"><i class="fas fa-exclamation-circle"></i>
                     {{ $message }}</div>@enderror
                 </div>
-                <div class="col-md-4 form-group">
-                    <label for="type_work">Hình thức làm việc</label>
-                    <select name="type_work" id="type_work" class="form-control form-select">
-                        <option value="">-- Chọn hình thức --</option>
-                        @if(isset($option['type_work']))
-                            @foreach($option['type_work'] as $items)
-                                <option value="{{ $items['id'] }}" {{ ($items['id'] == old('type_work', $user->type_work ?? '')) ? 'selected' : '' }}>
+                <div class="col-md-3 form-group">
+                    <label for="team">Ca làm việc</label>
+                    <select name="team" id="team" class="form-control form-select">
+                        <option value="">-- Chọn ca --</option>
+                        @if(isset($option['ca']))
+                            @foreach($option['ca'] as $items)
+                                <option value="{{ $items['id'] }}" {{ ($items['id'] == old('team', $user->team_id ?? '')) ? 'selected' : '' }}>
                                     {{ $items['text'] }}
                                 </option>
                             @endforeach
                         @endif
                     </select>
-                    @error('type_work')<div class="text-danger small"><i class="fas fa-exclamation-circle"></i>
+                    @error('team')<div class="text-danger small"><i class="fas fa-exclamation-circle"></i>
                     {{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-4 form-group">
@@ -282,42 +268,8 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const typeAccountSelect = document.getElementById('type_account');
-        
-        // Ensure elements exist before proceeding
-        const partSelect = document.getElementById('part');
-        const teamSelect = document.getElementById('team');
-        const typeWorkSelect = document.getElementById('type_work');
-        
-        if (!typeAccountSelect || !partSelect || !teamSelect || !typeWorkSelect) return;
-
-        const partGroup = partSelect.closest('.form-group');
-        const teamGroup = teamSelect.closest('.form-group');
-        const typeWorkGroup = typeWorkSelect.closest('.form-group');
-        
-        function toggleFields() {
-            const selectedText = typeAccountSelect.options[typeAccountSelect.selectedIndex]?.text.toLowerCase() || '';
-            const isAdminOrSuperAdmin = selectedText.includes('admin') || selectedText.includes('super admin') || selectedText.includes('giám đốc');
-            
-            if (isAdminOrSuperAdmin) {
-                partGroup.style.display = 'none';
-                teamGroup.style.display = 'none';
-                typeWorkGroup.style.display = 'none';
-                
-                partSelect.value = '';
-                teamSelect.value = '';
-                typeWorkSelect.value = '';
-            } else {
-                partGroup.style.display = 'block';
-                teamGroup.style.display = 'block';
-                typeWorkGroup.style.display = 'block';
-            }
-        }
-
-        typeAccountSelect.addEventListener('change', toggleFields);
-        
-        // Chạy lần đầu khi load trang
-        toggleFields();
-    });
+    // No dynamic JS needed - form is straightforward
 </script>
+
+
+

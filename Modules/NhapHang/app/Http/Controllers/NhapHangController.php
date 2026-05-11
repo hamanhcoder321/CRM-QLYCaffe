@@ -174,7 +174,7 @@ class NhapHangController extends Controller
     {
         if (!$request->ajax()) return;
 
-        $query = Customer::withCount('shipments')->orderBy('created_at', 'desc');
+        $query = Customer::orderBy('created_at', 'desc');
 
         return DataTables::of($query)
             ->addIndexColumn()

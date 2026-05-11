@@ -27,7 +27,7 @@ class BanHangController extends Controller
         return DataTables::of($drinks)
             ->addIndexColumn()
             ->editColumn('name', function($r) {
-                $img = $r->image ? asset('storage/' . $r->image) : 'https://placehold.co/40x40?text=Drink';
+                $img = $r->image ? asset('uploads/' . $r->image) : 'https://placehold.co/40x40?text=Drink';
                 return '<div class="d-flex align-items-center"><img src="'.$img.'" style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px"> <span>' . htmlspecialchars($r->name) . '</span></div>';
             })
             ->editColumn('price', fn($r) => number_format($r->price) . ' đ')
@@ -71,7 +71,7 @@ class BanHangController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('drinks', 'public');
+            $data['image'] = $request->file('image')->store('drinks', 'uploads');
         }
 
         $drink = \App\Models\Drink::create([
@@ -108,10 +108,10 @@ class BanHangController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            if ($drink->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($drink->image)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($drink->image);
+            if ($drink->image && \Illuminate\Support\Facades\Storage::disk('uploads')->exists($drink->image)) {
+                \Illuminate\Support\Facades\Storage::disk('uploads')->delete($drink->image);
             }
-            $data['image'] = $request->file('image')->store('drinks', 'public');
+            $data['image'] = $request->file('image')->store('drinks', 'uploads');
         }
 
         $drink->update([
@@ -142,8 +142,8 @@ class BanHangController extends Controller
 
     public function thucDonDelete(\App\Models\Drink $drink)
     {
-        if ($drink->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($drink->image)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($drink->image);
+        if ($drink->image && \Illuminate\Support\Facades\Storage::disk('uploads')->exists($drink->image)) {
+            \Illuminate\Support\Facades\Storage::disk('uploads')->delete($drink->image);
         }
         $drink->delete();
         return response()->json(['success' => true, 'message' => 'Đã xóa thực đơn!']);
@@ -164,7 +164,7 @@ class BanHangController extends Controller
         return DataTables::of($this->repo->getProducts())
             ->addIndexColumn()
             ->editColumn('name', function($r) {
-                $img = $r->image ? asset('storage/' . $r->image) : 'https://placehold.co/40x40?text=Drink';
+                $img = $r->image ? asset('uploads/' . $r->image) : 'https://placehold.co/40x40?text=Drink';
                 return '<div class="d-flex align-items-center"><img src="'.$img.'" style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px"> <span>' . htmlspecialchars($r->name) . '</span></div>';
             })
             ->editColumn('price', fn($r) => number_format($r->price) . ' đ')
@@ -201,7 +201,7 @@ class BanHangController extends Controller
         ], ['name.required' => 'Tên nguyên liệu bắt buộc']);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('products', 'public');
+            $data['image'] = $request->file('image')->store('products', 'uploads');
         }
 
         $data['number_out'] = 0;
@@ -334,16 +334,19 @@ class BanHangController extends Controller
                     : '<span class="text-danger">-' . number_format(abs($r->profit)) . ' đ</span>';
             })
             ->addColumn('so_sp', fn($r) => $r->sellProducts->sum('number_sell') . ' món')
-            ->addColumn('action', fn($r) => '
-                <div class="d-flex gap-1">
-                    <button class="btn-action btn-edit" onclick="viewSell(' . $r->id . ')" title="Chi tiết">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn-action btn-del" onclick="deleteSell(' . $r->id . ')" title="Xóa">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            ')
+            ->addColumn('action', function($r) {
+                $deleteBtn = $r->status == 0
+                    ? '<button class="btn-action btn-del" onclick="deleteSell(' . $r->id . ')" title="Xóa"><i class="fas fa-trash"></i></button>'
+                    : '<span title="Đã thanh toán - không thể xóa" style="color:#9ca3af;padding:4px 8px;font-size:11px"><i class="fas fa-lock"></i></span>';
+                return '
+                    <div class="d-flex gap-1">
+                        <button class="btn-action btn-edit" onclick="viewSell(' . $r->id . ')" title="Chi tiết">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ' . $deleteBtn . '
+                    </div>
+                ';
+            })
             ->rawColumns(['status', 'profit', 'action'])
             ->make(true);
     }
@@ -373,6 +376,14 @@ class BanHangController extends Controller
 
     public function giaoDichUpdate(Request $request, Sell $sell)
     {
+        // Khoá đơn đã thanh toán - không cho sửa
+        if ($sell->status == 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đơn hàng đã thanh toán, không thể chỉnh sửa!'
+            ], 403);
+        }
+
         $data = $request->validate([
             'name'            => ['nullable', 'string', 'max:255'],
             'status'          => ['required', 'integer'],

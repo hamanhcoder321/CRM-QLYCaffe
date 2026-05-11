@@ -647,10 +647,23 @@ window.viewSell = function(id) {
                 <tbody>${rows}</tbody>
             </table>`);
             
-        if (res.status == 0) {
-            $('#btn-print-invoice').hide();
-        } else {
+        // Ẩn/hiện nút Sửa tùy trạng thái
+        if (res.status == 1) {
+            // Đã bán - không cho sửa
+            $('#btn-edit-sell-modal')
+                .prop('disabled', true)
+                .html('<i class="fas fa-lock mr-1"></i>Đã thanh toán')
+                .removeClass('btn-warning')
+                .addClass('btn-secondary');
             $('#btn-print-invoice').show();
+        } else {
+            // Chưa bán - cho sửa
+            $('#btn-edit-sell-modal')
+                .prop('disabled', false)
+                .html('<i class="fas fa-edit mr-1"></i>Sửa')
+                .removeClass('btn-secondary')
+                .addClass('btn-warning');
+            $('#btn-print-invoice').hide();
         }
         
         $('#viewSellModal').modal('show');
