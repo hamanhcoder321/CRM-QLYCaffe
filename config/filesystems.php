@@ -47,6 +47,16 @@ return [
             'report' => false,
         ],
 
+        // Disk này lưu file thẳng vào public/uploads - không cần symlink, chạy được trên mọi hosting
+        'uploads' => [
+            'driver' => 'local',
+            'root' => public_path('uploads'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/uploads',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
