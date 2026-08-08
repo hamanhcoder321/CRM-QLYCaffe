@@ -25,7 +25,7 @@
   @endphp
 
   <!-- Brand Logo -->
-  <a href="/dashboard" class="brand-link d-flex align-items-center px-3 py-3" style="
+  <a href="/" class="brand-link d-flex align-items-center px-3 py-3" style="
     border-bottom: 1px solid rgba(255,255,255,0.06);
     text-decoration: none;
     background: rgba(255,255,255,0.02);

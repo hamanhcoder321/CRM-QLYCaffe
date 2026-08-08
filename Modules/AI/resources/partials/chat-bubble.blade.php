@@ -17,7 +17,7 @@
         <div id="ai-chat-messages" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa;">
             <div class="mb-3 d-flex justify-content-start">
                 <div class="bg-white p-2 rounded shadow-sm border" style="max-width: 85%; font-size: 14px;">
-                    Chào Giám đốc! Tôi có thể giúp gì cho bạn về dữ liệu hệ thống hôm nay?
+                    Chào Bạn! Tôi có thể giúp gì cho bạn về dữ liệu hệ thống hôm nay?
                 </div>
             </div>
         </div>
